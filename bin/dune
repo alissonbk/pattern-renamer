@@ -1,0 +1,4 @@
+(executable
+ (public_name renamer)
+ (name main)
+ (libraries renamer cmdliner))
