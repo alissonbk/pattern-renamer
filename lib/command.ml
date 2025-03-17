@@ -24,7 +24,7 @@ let to_word =
   let doc = "The word that will replace the from word - Can be written in any pattern as simpleExample or simple_exmaple ... - When multiple to (--mt) is used this will be ignored" in  
   Arg.(value & pos 1 string "" & info [] ~docv:"to" ~doc)
 
-let renamer_term = Term.(const Core.renamer $ recursive $ ignore $ multiple_from $ multiple_to $ from_word $ to_word)
+let entrypoint_term = Term.(const Core.entrypoint $ recursive $ ignore $ multiple_from $ multiple_to $ from_word $ to_word)
 
 
 let info =
@@ -35,4 +35,4 @@ let info =
   in
   Cmd.info "renamer" ~version:"%‌%VERSION%%" ~doc ~exits:Cmd.Exit.defaults ~man
 
-let command_value = Cmd.v info renamer_term
+let command_value = Cmd.v info entrypoint_term
