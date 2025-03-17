@@ -1,7 +1,27 @@
 open Printf
 
+(* 
+* Divided in few steps 
+  -> Validate 
+  -> Search for matchings 
+  -> Display changes (before than after), asking for confirm (y/n)
+  -> Write changes to all the files 
+*)
+
+(* when contains multiple_from *)
+(* let validate_lists *)
 
 let renamer recursive ignore multiple_from multiple_to from_word to_word =
-  let lst_to_string = List.fold_left (fun acc curr -> acc ^ "," ^ curr) "" in
-  printf "recursive: %b\nignore: %s\nmultiple_from: %s\nmultiple_to: %s\nfrom_word: %s\nto_word: %s\n" 
-    recursive (lst_to_string ignore) (lst_to_string multiple_from) (lst_to_string multiple_to) from_word to_word
+  let args : Types.command_args = {
+    recursive = recursive;
+    ignore = ignore;
+    multiple_from = multiple_from;
+    multiple_to = multiple_to;
+    from_word = from_word;
+    to_word = to_word
+  }
+  in
+  Utils.print_input_args args;
+  printf "\n"
+
+  
