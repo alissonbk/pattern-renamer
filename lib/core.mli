@@ -5,16 +5,18 @@ open Types
 val entrypoint : bool -> string list -> string list -> string list -> string -> string -> unit
 
 (* Divided in a few steps 
+  -> Clean up
   -> Validate 
   -> Generate all patterns
   -> Search for matchings 
   -> Display changes (before than after), asking for confirm (y/n)
   -> Apply changes (if accepted)
 *)
-val run_all_steps : command_args -> unit
+val run_steps : command_args -> unit
+
+val clean_up : command_args -> command_args
 
 val validate_args : command_args -> bool
-
 
 (* a list of all writting_patterns for each word in the args *)
 val generate_patterns : command_args -> word_pattern list list
