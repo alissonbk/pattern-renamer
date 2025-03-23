@@ -82,25 +82,37 @@ let identify_pattern s =
       ) else InvalidPattern
     | _ -> InvalidPattern
 
+let validate_patterns (wpl : Types.word_pattern list) = 
+  let val_underscore (s : string Types.extra_pattern_type) = 
+    String.contains (Utils.unbox_extp s) '_' 
+    && true
+  in
+  let rec validate (main_lst: Types.word_pattern list) valid_lst invalid_lst =
+    match main_lst with
+      | [] -> if List.length invalid_lst > 0 then (
+        printf "these invalid patterns were found and will be ignored: %s" (Utils.lst_to_string @@ List.map (fun v -> Utils.unbox_wp v) invalid_lst)
+      );
+      valid_lst
+      | h :: t -> 
+        (match h with
+          | Types.Underscore s ->             
+            if val_underscore s then validate t (h :: valid_lst) invalid_lst else validate t valid_lst (h :: invalid_lst)      
+          (* TODO    *)
+        )
+  in
+  validate wpl [] []
+
+
+
 (* let to_underscore p = () *)
 
 
-
-
-  (* type word_pattern =
-  (* some_example *)
-  | Underscore of string
-  (* someExample *)
-  | CamelCase of string 
-  (* SomeExample *)
-  | CapitalizedCamelCase of string  
-  (* some example | Some example | Some Example*)
-  | SpaceSeparated of string extra_pattern_type
-  (* Gramatical is useful for languages with accent like Portuguese (gramática -> grammar)*)
-  | Gramatical of string extra_pattern_type  *)
-(* let generate_patterns (args : Types.command_args) (flow_type : Types.flow_type) =
-  let gen_underscode s = 
-  [] *)
+  
+let generate_patterns (args : Types.command_args) (flow_type : Types.flow_type) =  
+  match flow_type with  
+    | Single -> [identify_pattern args.from_word]
+    | MultipleFromSingleTo 
+    | Multiple -> List.map (fun e -> identify_pattern e) args.multiple_from
 
 
 

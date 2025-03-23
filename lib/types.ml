@@ -38,7 +38,7 @@ type word_match = {
   file_path : string;
   pattern : word_pattern
 }
-
+  
 type flow_type =
   | Single
   | MultipleFromSingleTo

@@ -17,6 +17,23 @@ let is_lower c = c = Char.lowercase_ascii c
 
 let is_upper c = c = Char.uppercase_ascii c
 
+
+let unbox_extp =    
+    function
+        | Types.AllCaptalized v -> v
+        | Types.AllLower v -> v
+        | Types.FirstCaptalized v -> v    
+
+let unbox_wp = 
+    function        
+        | Types.Underscore v -> unbox_extp v
+        | Types.CamelCase v -> v        
+        | Types.CapitalizedCamelCase v -> v        
+        | Types.Lower v -> v
+        | Types.SpaceSeparated v -> unbox_extp v        
+        | Types.Gramatical v -> unbox_extp v     
+        | Types.InvalidPattern -> failwith "cannot unbox invalid pattern"   
+
 let has_upper cl = 
     try 
         ignore @@ List.find (fun c -> is_upper c) cl;
