@@ -104,8 +104,20 @@ let validate_patterns (wpl : Types.word_pattern list) =
 
 
 
-(* let to_underscore p = () *)
-
+let to_underscore (args : Types.command_args) (flow_type : Types.flow_type) =
+  let transform = function
+    | Types.Underscore v -> Types.Underscore v
+    | Types.CamelCase v
+    | Types.CapitalizedCamelCase v -> Types.Underscore (Types.AllLower (Transform.camel_to_underscore v))
+    | Types.Lower v -> Types.Underscore (Types.AllLower v)
+    | Types.SpaceSeparated v -> 
+      let s = Utils.unbox_extp v in
+      Types.Underscore (Types.AllLower (Transform.space_to_underscore s))
+    | _ -> failwith "not implemented" in
+    match flow_type with  
+    | Single -> [transform @@ identify_pattern args.from_word]
+    | MultipleFromSingleTo 
+    | Multiple -> List.map (fun e -> transform @@ identify_pattern e) args.multiple_from
 
   
 let generate_patterns (args : Types.command_args) (flow_type : Types.flow_type) =  

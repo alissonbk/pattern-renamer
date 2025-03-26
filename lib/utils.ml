@@ -13,6 +13,9 @@ let empty lst = not @@ not_empty lst
 
 let explode s = List.init (String.length s) (String.get s)
 
+(* can cause performance issues *)
+let implode (cl : char list) = String.init (List.length cl) (fun i -> List.nth cl i)
+
 let is_lower c = c = Char.lowercase_ascii c
 
 let is_upper c = c = Char.uppercase_ascii c
