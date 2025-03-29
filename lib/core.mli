@@ -6,10 +6,11 @@ val entrypoint : bool -> string list -> string list -> string list -> string -> 
 
 (* Divided in a few steps 
   -> Clean up
-  -> Validate 
-  -> Generate all patterns
-  -> Validate patterns
-  -> Transform to anchor pattern (Underscore)
+  -> Validate
+  -> Identify the pattern used by words
+  -> Transform to anchor pattern (Underscore) 
+  -> Generate all patterns (so it can be searched)
+  -> optional Validate patterns ( maybe latter with better word pattern validation)
   -> Search for matchings 
   -> Display changes (before than after), asking for confirm (y/n)
   -> Apply changes (if accepted)
