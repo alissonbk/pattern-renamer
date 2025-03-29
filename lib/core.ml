@@ -85,7 +85,6 @@ let identify_pattern s =
 let validate_patterns (wpl : Types.word_pattern list) = 
   let val_underscore (s : string Types.extra_pattern_type) = 
     String.contains (Utils.unbox_extp s) '_' 
-    && true
   in
   let rec validate (main_lst: Types.word_pattern list) valid_lst invalid_lst =
     match main_lst with
@@ -96,7 +95,8 @@ let validate_patterns (wpl : Types.word_pattern list) =
       | h :: t -> 
         (match h with
           | Types.Underscore s ->             
-            if val_underscore s then validate t (h :: valid_lst) invalid_lst else validate t valid_lst (h :: invalid_lst)      
+            if val_underscore s then validate t (h :: valid_lst) invalid_lst else validate t valid_lst (h :: invalid_lst)
+          | _ -> failwith "todo"      
           (* TODO    *)
         )
   in
