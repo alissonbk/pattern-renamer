@@ -20,6 +20,8 @@ let is_lower c = c = Char.lowercase_ascii c
 
 let is_upper c = c = Char.uppercase_ascii c
 
+let first_capitalized s = String.init (String.length s) (fun i -> if i = 0 then Char.uppercase_ascii s.[i] else s.[i])
+
 
 let unbox_extp =    
     function

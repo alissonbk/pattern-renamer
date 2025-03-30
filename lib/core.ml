@@ -103,7 +103,7 @@ let validate_patterns (wpl : Types.word_pattern list) =
   validate wpl [] []
 
 
-
+(* identify and transform to underscore *)
 let to_underscore (args : Types.command_args) (flow_type : Types.flow_type) =
   let transform = function
     | Types.Underscore v -> Types.Underscore v
@@ -119,13 +119,37 @@ let to_underscore (args : Types.command_args) (flow_type : Types.flow_type) =
     | MultipleFromSingleTo 
     | Multiple -> List.map (fun e -> transform @@ identify_pattern e) args.multiple_from
 
-  
-let generate_patterns (args : Types.command_args) (flow_type : Types.flow_type) =  
-  match flow_type with  
-    | Single -> [identify_pattern args.from_word]
-    | MultipleFromSingleTo 
-    | Multiple -> List.map (fun e -> identify_pattern e) args.multiple_from
 
+let to_all_subpatterns s = 
+  [
+    Types.AllLower (String.lowercase_ascii s);
+    Types.AllCaptalized (String.uppercase_ascii s);
+    Types.FirstCaptalized (Utils.first_capitalized s)
+  ]
+
+let underscore_to_all_patterns =     
+    function
+    | Types.Underscore v ->   
+      let unboxed_v = Utils.unbox_extp v in
+      let lst = [ 
+        (Types.Lower (String.lowercase_ascii unboxed_v));       
+        (Types.CamelCase (Transform.underscore_to_camel unboxed_v));
+        (Types.CapitalizedCamelCase (Transform.underscore_to_camel ~captalized:true unboxed_v))                
+      ] in
+      [
+        to_all_subpatterns unboxed_v |> List.map (fun exp -> Types.Underscore exp); 
+        to_all_subpatterns @@ Transform.underscore_to_space unboxed_v
+          |> List.map (fun exp -> Types.SpaceSeparated exp)
+      ] |> List.flatten |> List.append lst
+
+    | _ -> failwith "invalid pattern, it should be Types.Underscore"
+  
+let generate_patterns (pattern_list: Types.word_pattern list) =  
+  let rec loop new_list = function
+      | [] -> new_list
+      | h :: t -> 
+        loop (underscore_to_all_patterns h :: new_list) t
+  in loop [] pattern_list
 
 
 let run_steps args =
