@@ -29,14 +29,14 @@ type word_pattern =
   (* someexample *)
   | Lower of string
   (* Gramatical is useful for languages with accent like Portuguese (gramática -> grammar)*)
-  | Gramatical of string extra_pattern_type
+  (* | Gramatical of string extra_pattern_type *)
   | InvalidPattern
 
 (* FIXME: needs a better name
 type represents a word that was found and is probably a change candidate*)
 type word_match = {
   file_path : string;
-  pattern : word_pattern
+  pattern : word_pattern  
 }
   
 type flow_type =

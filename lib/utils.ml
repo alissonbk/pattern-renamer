@@ -3,6 +3,8 @@ open Printf
 
 let lst_to_string = List.fold_left (fun acc curr -> acc ^ "," ^ curr) ""
 
+let mtx_to_string = List.fold_left (fun acc curr -> acc ^ "\n\n" ^ lst_to_string curr) ""
+
 let ignore _ = ()
 
 let dif_list_size a b = List.length a <> List.length b
@@ -36,7 +38,7 @@ let unbox_wp =
         | Types.CapitalizedCamelCase v -> v        
         | Types.Lower v -> v
         | Types.SpaceSeparated v -> unbox_extp v        
-        | Types.Gramatical v -> unbox_extp v     
+        (* | Types.Gramatical v -> unbox_extp v      *)
         | Types.InvalidPattern -> failwith "cannot unbox invalid pattern"   
 
 let has_upper cl = 
@@ -52,6 +54,12 @@ let has_lower cl =
         true
     with 
         | Not_found -> false
+
+
+let print_flow_type = function
+        | Types.Single -> printf "Single\n"
+        | Types.Multiple -> printf "Multiple\n"
+        | Types.MultipleFromSingleTo -> printf "MultipleFromSingleTo\n"
 
 let print_input_args (args : Types.command_args) =   printf "recursive: %b\nignore: %s\nmultiple_from: %s\nmultiple_to: %s\nfrom_word: %s\nto_word: %s\n" 
     args.recursive (lst_to_string args.ignore) (lst_to_string args.multiple_from) (lst_to_string args.multiple_to) args.from_word args.to_word;
