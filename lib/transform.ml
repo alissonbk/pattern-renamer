@@ -27,15 +27,16 @@ let underscore_to_space s =
 
 
 let underscore_to_camel ?(captalized = false) s  =
-  if s = "" then "" else
+  if s = "" then "" else  
   let len = String.length s in
   let buf = Buffer.create len in
   (match captalized with
     | true -> Buffer.add_char buf (Char.uppercase_ascii s.[0])
     | false -> Buffer.add_char buf (Char.lowercase_ascii s.[0]));
-  let counter = ref 0 in
+  let counter = ref 0 in  
   List.iter (
     fun _ -> 
+      if !counter = (len) then () else
       if s.[!counter] = '_' then (
         Buffer.add_char buf (Char.uppercase_ascii s.[!counter + 1]);
         counter := !counter + 2
@@ -43,7 +44,7 @@ let underscore_to_camel ?(captalized = false) s  =
         Buffer.add_char buf s.[!counter];
         counter := !counter + 1
         )
-  ) (Utils.explode s);
+  ) (Utils.explode s);  
   Buffer.contents buf
 
 
@@ -58,10 +59,10 @@ let to_all_extrapatterns s =
 let underscore_to_all_patterns =     
     function
     | Types.Underscore v ->   
-      let unboxed_v = Utils.unbox_extp v in
-      let lst = [ 
-        (Types.Lower (String.lowercase_ascii unboxed_v));       
-        (Types.CamelCase (underscore_to_camel unboxed_v));
+      let unboxed_v = Utils.unbox_extp v in      
+      let lst = [   
+        (Types.Lower (String.lowercase_ascii unboxed_v) ); 
+        (Types.CamelCase (underscore_to_camel unboxed_v));        
         (Types.CapitalizedCamelCase (underscore_to_camel ~captalized:true unboxed_v))                
       ] in
       [

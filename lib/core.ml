@@ -107,8 +107,8 @@ let identify_pattern s =
 let to_underscore (args : Types.command_args) (flow_type : Types.flow_type) =
   let transform = function
     | Types.Underscore v -> Types.Underscore v
-    | Types.CamelCase v
-    | Types.CapitalizedCamelCase v -> Types.Underscore (Types.AllLower (Transform.camel_to_underscore v))
+    | Types.CamelCase v -> Types.Underscore (Types.AllLower (Transform.camel_to_underscore v))
+    | Types.CapitalizedCamelCase v -> Types.Underscore (Types.AllLower (Transform.camel_to_underscore ~capitalized: true v))
     | Types.Lower v -> Types.Underscore (Types.AllLower v)
     | Types.SpaceSeparated v -> 
       let s = Utils.unbox_extp v in
@@ -146,7 +146,9 @@ let run_steps args =
   Utils.print_flow_type flow_t;
   let all_in_anchor_type = to_underscore args flow_t in
   all_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
+  Stdlib.flush_all ();
   let generate_patterns = generate_patterns all_in_anchor_type in
+  
   search_matchings args generate_patterns;
   ()
 

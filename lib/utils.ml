@@ -1,7 +1,7 @@
 open Printf
 
 
-let lst_to_string = List.fold_left (fun acc curr -> acc ^ "," ^ curr) ""
+let lst_to_string = List.fold_left (fun acc curr -> if acc = "" then curr else acc ^ ", " ^ curr) ""
 
 let mtx_to_string = List.fold_left (fun acc curr -> acc ^ "\n\n" ^ lst_to_string curr) ""
 
