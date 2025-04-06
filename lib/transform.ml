@@ -47,6 +47,12 @@ let underscore_to_camel ?(captalized = false) s  =
   ) (Utils.explode s);  
   Buffer.contents buf
 
+let underscore_to_lower s =
+  let buf = Buffer.create @@ String.length s in
+  List.iter(
+    fun c -> if c <> '_' then (Buffer.add_char buf @@ Char.lowercase_ascii c)
+  ) @@ Utils.explode s;
+  Buffer.contents buf
 
 
 let to_all_extrapatterns s = 
@@ -61,7 +67,7 @@ let underscore_to_all_patterns =
     | Types.Underscore v ->   
       let unboxed_v = Utils.unbox_extp v in      
       let lst = [   
-        (Types.Lower (String.lowercase_ascii unboxed_v) ); 
+        (Types.Lower (underscore_to_lower unboxed_v) ); 
         (Types.CamelCase (underscore_to_camel unboxed_v));        
         (Types.CapitalizedCamelCase (underscore_to_camel ~captalized:true unboxed_v))                
       ] in
