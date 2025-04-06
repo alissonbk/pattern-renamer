@@ -132,7 +132,7 @@ let generate_patterns (pattern_list: Types.word_pattern list) =
 
 let search_matchings args all_patterns =
   ignore args;
-  all_patterns |> List.map (fun lst -> List.map (fun p -> Utils.unbox_wp p) lst) |> Utils.mtx_to_string |> printf "%s \n";
+  Utils.print_patterns all_patterns;
   Sys.getcwd () |> printf "%s\n"
 
 
@@ -146,10 +146,8 @@ let run_steps args =
   Utils.print_flow_type flow_t;
   let all_in_anchor_type = to_underscore args flow_t in
   all_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
-  Stdlib.flush_all ();
-  let generate_patterns = generate_patterns all_in_anchor_type in
-  
-  search_matchings args generate_patterns;
+  let patterns = generate_patterns all_in_anchor_type in
+  search_matchings args patterns;
   ()
 
 let entrypoint recursive ignore multiple_from multiple_to from_word to_word =

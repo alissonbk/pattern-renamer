@@ -33,7 +33,7 @@ let underscore_to_camel ?(captalized = false) s  =
   (match captalized with
     | true -> Buffer.add_char buf (Char.uppercase_ascii s.[0])
     | false -> Buffer.add_char buf (Char.lowercase_ascii s.[0]));
-  let counter = ref 0 in  
+  let counter = ref 1 in  
   List.iter (
     fun _ -> 
       if !counter = (len) then () else

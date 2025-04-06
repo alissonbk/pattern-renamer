@@ -61,5 +61,19 @@ let print_flow_type = function
         | Types.Multiple -> printf "Multiple\n"
         | Types.MultipleFromSingleTo -> printf "MultipleFromSingleTo\n"
 
+
+let print_patterns all_patterns =
+    all_patterns |> List.map (fun lst -> List.map (fun p -> 
+        match p with
+            | Types.Underscore v -> "Underscore: " ^ (unbox_extp v)
+            | Types.CamelCase v -> "CamelCase: " ^ v
+            | Types.CapitalizedCamelCase v -> "CapitalizedCamelCase: " ^ v
+            | Types.SpaceSeparated v -> "SpaceSeparated: " ^ (unbox_extp v)
+            | Types.Lower v -> "Lower: " ^ v
+            | Types.InvalidPattern -> "invalid pattern"
+        ) 
+        lst) 
+        |> mtx_to_string |> printf "%s \n"
+
 let print_input_args (args : Types.command_args) =   printf "recursive: %b\nignore: %s\nmultiple_from: %s\nmultiple_to: %s\nfrom_word: %s\nto_word: %s\n" 
     args.recursive (lst_to_string args.ignore) (lst_to_string args.multiple_from) (lst_to_string args.multiple_to) args.from_word args.to_word;
