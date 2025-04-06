@@ -1,4 +1,4 @@
 (library
  (name renamer)
- (modules renamer command core utils types transform)
+ (modules renamer command core utils types transform file)
  (libraries cmdliner))

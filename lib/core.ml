@@ -133,7 +133,7 @@ let generate_patterns (pattern_list: Types.word_pattern list) =
 let search_matchings args all_patterns =
   ignore args;
   Utils.print_patterns all_patterns;
-  Sys.getcwd () |> printf "%s\n"
+  Sys.getcwd () |> File.read_dir |> List.iter (printf "%s\n")
 
 
 
