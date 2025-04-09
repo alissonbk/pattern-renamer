@@ -75,5 +75,23 @@ let print_patterns all_patterns =
         lst) 
         |> mtx_to_string |> printf "%s \n"
 
+
+(* replace only the pattern that was found *)
+let replace_substring s sub repl =
+  let len_s = String.length s in
+  let len_sub = String.length sub in
+  let rec aux i =
+    if i > len_s - len_sub then s 
+    else if String.sub s i len_sub = sub then
+      let before = String.sub s 0 i in
+      let after = String.sub s (i + len_sub) (len_s - i - len_sub) in
+      before ^ repl ^ after
+    else aux (i + 1)
+  in
+  aux 0
+
+
 let print_input_args (args : Types.command_args) =   printf "recursive: %b\nignore: %s\nmultiple_from: %s\nmultiple_to: %s\nfrom_word: %s\nto_word: %s\n" 
     args.recursive (lst_to_string args.ignore) (lst_to_string args.multiple_from) (lst_to_string args.multiple_to) args.from_word args.to_word;
+
+

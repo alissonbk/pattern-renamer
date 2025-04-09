@@ -130,10 +130,32 @@ let generate_patterns (pattern_list: Types.word_pattern list) =
         loop (Transform.underscore_to_all_patterns h :: new_list) t
   in loop [] pattern_list
 
+
+
+let temporary_write_file_changes f_name =
+  let fin = open_in f_name in
+  let tmp = open_out f_name in
+  try
+    match input_line fin with
+      | "" -> ()
+      | s -> ()
+        (* todo replace substring, need to handle multiple *)
+        
+  with
+    | End_of_file -> ()
+    
+
+
 let search_matchings args all_patterns =
   ignore args;
   Utils.print_patterns all_patterns;
-  Sys.getcwd () |> File.read_dir |> List.iter (printf "%s\n")
+  let file_list = Sys.getcwd () |> File.read_dir in
+  file_list |> List.iter (printf "%s\n")
+  let rec loop_files = function 
+    | [] -> printf "finished writting to temporary files\n"      
+    | file :: t -> temporary_write_file_changes f; loop_files t
+  in
+  loop_files file_list
 
 
 
