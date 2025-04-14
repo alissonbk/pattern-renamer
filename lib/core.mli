@@ -10,7 +10,7 @@ val entrypoint : bool -> string list -> string list -> string list -> string -> 
   -> Transform to anchor pattern (Underscore) 
   -> Generate all patterns (so it can be searched)
   -> optional Validate patterns ( maybe latter with better word pattern validation)
-  -> Search for matchings 
+  -> Search for matchings / Temporary replace changes
   -> Display changes (before than after), asking for confirm (y/n)
   -> Apply changes (if accepted)
 *)
@@ -24,11 +24,14 @@ val validate_args : command_args -> bool
 could be done in the validate_args fun., but would mix things up *)
 val discover_flow_type : command_args -> flow_type
 
+(* the application needs a anchor pattern to makes things easier, so this function transform any other pattern to underscore*)
+val to_underscore : string -> string list -> flow_type -> word_pattern list
+
 (* a list of all writting_patterns for each word in the args *)
-val generate_patterns : word_pattern list -> word_pattern list list
+val generate_patterns : word_pattern list -> word_pattern list -> all_patterns
 
 (* find all matches *)
-val search_matchings : command_args -> word_pattern list list -> unit
+(* val search_matchings : command_args -> all_patterns -> unit *)
 
 (* display the changes before apply and asks y/n ** has side effects ** *)
 (* val display_changable_items : word_match list -> unit -> bool *)
@@ -38,7 +41,4 @@ val search_matchings : command_args -> word_pattern list list -> unit
 
 (* some validation, for some will be hard to be extrictly correct, may fall to the user to identify its wrong *)
 (* val validate_patterns : word_pattern list -> bool *)
-
-(* the application needs a anchor pattern to makes things easier, so this function transform any other pattern to underscore*)
-val to_underscore : command_args -> flow_type -> word_pattern list
 

@@ -104,7 +104,7 @@ let identify_pattern s =
 
 
 (* identify and transform to underscore *)
-let to_underscore (args : Types.command_args) (flow_type : Types.flow_type) =
+let to_underscore from multiple_from (flow_type : Types.flow_type) =
   let transform = function
     | Types.Underscore v -> Types.Underscore v
     | Types.CamelCase v -> Types.Underscore (Types.AllLower (Transform.camel_to_underscore v))
@@ -116,46 +116,61 @@ let to_underscore (args : Types.command_args) (flow_type : Types.flow_type) =
     | _ -> failwith "not implemented" 
   in
   match flow_type with 
-    | Single -> [transform @@ identify_pattern args.from_word]
+    | Single -> [transform @@ identify_pattern from]
     | MultipleFromSingleTo 
-    | Multiple -> List.map (fun e -> transform @@ identify_pattern e) args.multiple_from
+    | Multiple -> List.map (fun e -> transform @@ identify_pattern e) multiple_from
 
 
 
 (* *)  
-let generate_patterns (pattern_list: Types.word_pattern list) =  
+let generate_patterns (from_pattern_list: Types.word_pattern list) (to_pattern_list: Types.word_pattern list) : Types.all_patterns =
   let rec loop new_list = function
       | [] -> new_list
       | h :: t -> 
         loop (Transform.underscore_to_all_patterns h :: new_list) t
-  in loop [] pattern_list
+  in 
+  { from_lst = loop [] from_pattern_list; to_lst = loop [] to_pattern_list }
 
 
 
-let temporary_write_file_changes f_name =
+(* let temporary_write_file_changes f_name all_patterns =
   let fin = open_in f_name in
-  let tmp = open_out f_name in
+  let tmp = open_out @@ f_name ^ ".tmp" in
+  let rec search_for_replace str_line pl =
+    match pl with
+      | [] -> ()
+      | h :: t ->   ()      
+        (* TODO replace the line with FROM value to TO value *)
+        (* Utils.replace_substring str_line (Utils.unbox_wp h ) new_pattern *)
+  in
   try
     match input_line fin with
       | "" -> ()
       | s -> ()
         (* todo replace substring, need to handle multiple *)
+        let rec loop_all_patterns = function 
+          | [] -> ()
+          | pattern_list :: t ->
+
+        Utils.replace_substring s 
+
         
   with
-    | End_of_file -> ()
+    | End_of_file -> () *)
     
 
 
-let search_matchings args all_patterns =
+(* let search_matchings args all_patterns =
   ignore args;
   Utils.print_patterns all_patterns;
   let file_list = Sys.getcwd () |> File.read_dir in
   file_list |> List.iter (printf "%s\n")
   let rec loop_files = function 
     | [] -> printf "finished writting to temporary files\n"      
-    | file :: t -> temporary_write_file_changes f; loop_files t
+    | file :: t -> ()
+      (* temporary_write_file_changes f all_patterns; loop_files t *)
   in
-  loop_files file_list
+  loop_files file_list *)
 
 
 
@@ -166,10 +181,13 @@ let run_steps args =
 
   let flow_t = discover_flow_type args in
   Utils.print_flow_type flow_t;
-  let all_in_anchor_type = to_underscore args flow_t in
-  all_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
-  let patterns = generate_patterns all_in_anchor_type in
-  search_matchings args patterns;
+  let from_in_anchor_type = to_underscore args.from_word args.multiple_from flow_t in
+  let to_in_anchor_type = to_underscore args.to_word args.multiple_to flow_t in
+  from_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
+  to_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
+  let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in
+  ignore patterns;
+  (* search_matchings args patterns; *)
   ()
 
 let entrypoint recursive ignore multiple_from multiple_to from_word to_word =

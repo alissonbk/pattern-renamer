@@ -32,6 +32,11 @@ type word_pattern =
   (* | Gramatical of string extra_pattern_type *)
   | InvalidPattern
 
+type all_patterns = {
+  from_lst : word_pattern list list;
+  to_lst : word_pattern list list;
+}  
+
 (* FIXME: needs a better name
 type represents a word that was found and is probably a change candidate*)
 type word_match = {
