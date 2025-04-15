@@ -10,7 +10,7 @@ val entrypoint : bool -> string list -> string list -> string list -> string -> 
   -> Transform to anchor pattern (Underscore) 
   -> Generate all patterns (so it can be searched)
   -> optional Validate patterns ( maybe latter with better word pattern validation)
-  -> Search for matchings / Temporary replace changes
+  -> Temporary replace matches
   -> Display changes (before than after), asking for confirm (y/n)
   -> Apply changes (if accepted)
 *)
@@ -31,7 +31,7 @@ val to_underscore : string -> string list -> flow_type -> word_pattern list
 val generate_patterns : word_pattern list -> word_pattern list -> all_patterns
 
 (* find all matches *)
-(* val search_matchings : command_args -> all_patterns -> unit *)
+val temporary_replace_matches : command_args -> all_patterns -> unit
 
 (* display the changes before apply and asks y/n ** has side effects ** *)
 (* val display_changable_items : word_match list -> unit -> bool *)

@@ -62,8 +62,8 @@ let print_flow_type = function
         | Types.MultipleFromSingleTo -> printf "MultipleFromSingleTo\n"
 
 
-let print_patterns all_patterns =
-    all_patterns |> List.map (fun lst -> List.map (fun p -> 
+let print_patterns (all_patterns: Types.all_patterns) =        
+    let f p = p |> List.map (fun lst -> List.map (fun p -> 
         match p with
             | Types.Underscore v -> "Underscore: " ^ (unbox_extp v)
             | Types.CamelCase v -> "CamelCase: " ^ v
@@ -74,6 +74,9 @@ let print_patterns all_patterns =
         ) 
         lst) 
         |> mtx_to_string |> printf "%s \n"
+    in
+    f all_patterns.from_lst;
+    f all_patterns.to_lst
 
 
 (* replace only the pattern that was found *)
