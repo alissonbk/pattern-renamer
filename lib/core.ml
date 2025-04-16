@@ -135,7 +135,7 @@ let generate_patterns (from_pattern_list: Types.word_pattern list) (to_pattern_l
 (* TODO: remove non core functions from core module *)
 let replace_strline (from_keyword: Types.word_pattern) (to_keyword: Types.word_pattern) strline = 
   match from_keyword with
-      | Underscore v1 -> 
+      | Underscore v1 ->                 
         (match to_keyword with 
           | Underscore v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp)
           | _ -> failwith "didnt match Underscore with expected type"
@@ -163,24 +163,32 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
   let tmp = open_out @@ f_name ^ ".tmp" in            
   let rec search_and_replace (str_line: string) (pl_from: Types.word_pattern list) (pl_to: Types.word_pattern list) =
     match (pl_from, pl_to) with
-      | ([], []) -> ()
+      | ([], []) -> fprintf tmp "%s\n" str_line
       | ((hfrom :: tfrom), (hto :: tto)) ->  
-        let replaced = replace_strline hfrom hto str_line in
-        fprintf tmp "%s" replaced;
+        let replaced = replace_strline hfrom hto str_line in        
         search_and_replace replaced tfrom tto
       | _ -> failwith "lists are out of order"                
   in
-  let rec loop_all_patterns = function 
-          | ([], []) -> ()
-          | (from :: tfrom), (to_ :: tto) ->
-            search_and_replace (input_line fin) from to_;
-            loop_all_patterns (tfrom, tto)
-          | _ -> failwith "invalid \"all patterns\" size"
+  let rec loop_all_patterns tpl str_line = 
+    match tpl with
+        | ([], []) -> ()
+        | (from :: tfrom), (to_ :: tto) ->
+          search_and_replace str_line from to_;
+          loop_all_patterns (tfrom, tto) str_line
+        | _ -> failwith "invalid \"all patterns\" size"
   in
-  try    
-    loop_all_patterns (all_patterns.from_lst, all_patterns.to_lst)
+  let rec loop_all_file () =
+    printf "here fname %s \n" f_name;
+    flush_all ();
+    match input_line fin with      
+      | s -> 
+        loop_all_patterns (all_patterns.from_lst, all_patterns.to_lst) s;
+        loop_all_file ()
+  in
+  try  
+    loop_all_file ()
   with
-    | End_of_file -> ()
+    | End_of_file -> printf "finished writing temporary files...\n"
     
 
 (* relly on the from and to list be both in order *)
