@@ -26,7 +26,6 @@ let to_word =
 
 let entrypoint_term = Term.(const Core.entrypoint $ recursive $ ignore $ multiple_from $ multiple_to $ from_word $ to_word)
 
-
 let info =
   let doc = "Rename multiple words by pattern ex: someExample" in
   let man = [

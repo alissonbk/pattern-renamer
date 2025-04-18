@@ -95,6 +95,11 @@ let replace_substring s sub repl =
 
 
 let print_input_args (args : Types.command_args) =   printf "recursive: %b\nignore: %s\nmultiple_from: %s\nmultiple_to: %s\nfrom_word: %s\nto_word: %s\n" 
-    args.recursive (lst_to_string args.ignore) (lst_to_string args.multiple_from) (lst_to_string args.multiple_to) args.from_word args.to_word;
+    args.recursive (lst_to_string args.ignore) (lst_to_string args.multiple_from) (lst_to_string args.multiple_to) args.from_word args.to_word
 
+
+let run_cmd cmd =
+  let inp = Unix.open_process_in cmd in
+  let r = In_channel.input_all inp in
+  In_channel.close inp; r
 

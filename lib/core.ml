@@ -177,8 +177,7 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
           loop_all_patterns (tfrom, tto) str_line
         | _ -> failwith "invalid \"all patterns\" size"
   in
-  let rec loop_all_file () =
-    printf "here fname %s \n" f_name;
+  let rec loop_all_file () =    
     flush_all ();
     match input_line fin with      
       | s -> 
@@ -188,23 +187,41 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
   try  
     loop_all_file ()
   with
-    | End_of_file -> printf "finished writing temporary files...\n"
+    | End_of_file -> printf "finished writing temporary file...\n"
     
 
-(* relly on the from and to list be both in order *)
-let temporary_replace_matches args (all_patterns: Types.all_patterns) =
+(* relly on the "from" and to "list" be both in order *)
+let temporary_replace_matches args file_list (all_patterns: Types.all_patterns) =
   ignore args;
-  Utils.print_patterns all_patterns;
-  let file_list = Sys.getcwd () |> File.read_dir in
-  file_list |> List.iter (printf "%s\n");
+  Utils.print_patterns all_patterns;  
   let rec loop_files = function 
-    | [] -> printf "finished writting to temporary files\n"      
+    | [] -> printf "finished writting all temporary files...\n"      
     | file :: t -> 
       write_tmp_files file all_patterns; 
       loop_files t
   in
   loop_files file_list
 
+let display_nd_confirm_changes flist () =
+  let rec ask_changes lst accepted_lst =
+    match lst with
+      | [] -> accepted_lst      
+      | h :: t ->         
+        let cmd = "diff -ZBb --color=always " ^ h ^ " " ^ h ^ ".tmp" in
+        printf "executing %s\n" cmd;        
+        let output = Utils.run_cmd cmd in
+        output |> printf "output: %s\n";        
+        if String.trim output = "" then ask_changes t accepted_lst 
+        else (
+          printf "accept changes (Y/n)?";          
+          flush_all ();
+          let r = Scanf.scanf "%s\n" (fun x -> String.lowercase_ascii x) in
+          if r = "" || r = "y" then ask_changes t (h :: accepted_lst) 
+          else ask_changes t accepted_lst
+        )        
+        
+  in
+  ask_changes flist []
 
 
 let run_steps args =
@@ -219,7 +236,9 @@ let run_steps args =
   from_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
   to_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
-  temporary_replace_matches args patterns;
+  let file_list = File.read_file_tree () in
+  temporary_replace_matches args file_list patterns;
+  display_nd_confirm_changes file_list () |> fun x -> printf "confirmed list: \n"; x |> List.iter (printf "%s, ");
   ()
 
 let entrypoint recursive ignore multiple_from multiple_to from_word to_word =
@@ -234,7 +253,7 @@ let entrypoint recursive ignore multiple_from multiple_to from_word to_word =
   in
   Utils.print_input_args args;
   run_steps args;
-  printf "\n"
+  printf "\n\n"
 
 
   

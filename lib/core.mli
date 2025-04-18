@@ -9,9 +9,9 @@ val entrypoint : bool -> string list -> string list -> string list -> string -> 
   -> Validate args
   -> Transform to anchor pattern (Underscore) 
   -> Generate all patterns (so it can be searched)
-  -> optional Validate patterns ( maybe latter with better word pattern validation)
+  -> optional Validate patterns ( maybe latter with better word pattern validation)  
   -> Temporary replace matches
-  -> Display changes (before than after), asking for confirm (y/n)
+  -> Display changes (before than after) and asking for confirm (y/n)
   -> Apply changes (if accepted)
 *)
 val run_steps : command_args -> unit
@@ -31,10 +31,11 @@ val to_underscore : string -> string list -> flow_type -> word_pattern list
 val generate_patterns : word_pattern list -> word_pattern list -> all_patterns
 
 (* find all matches *)
-val temporary_replace_matches : command_args -> all_patterns -> unit
+val temporary_replace_matches : command_args -> string list -> all_patterns -> unit
 
-(* display the changes before apply and asks y/n ** has side effects ** *)
-(* val display_changable_items : word_match list -> unit -> bool *)
+(* display the changes before apply and asks y/n ** has side effects ** 
+  recieves a list of the file names, show diff between orig. and .tmp then returns a list with accepted files*)
+val display_nd_confirm_changes : string list -> unit -> string list
 
 (* write changes to disk and return bool representing if it was successful *)
 (* val apply_changes : unit -> bool *)

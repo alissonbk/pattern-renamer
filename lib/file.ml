@@ -12,3 +12,6 @@ let read_dir dir =
     | f :: fs -> loop (f :: lst) fs    
   in
     loop [] [dir]
+    
+
+let read_file_tree () = Sys.getcwd () |> read_dir
