@@ -38,7 +38,7 @@ val temporary_replace_matches : command_args -> string list -> all_patterns -> u
 val display_nd_confirm_changes : string list -> unit -> string list
 
 (* write changes to disk and return bool representing if it was successful *)
-(* val apply_changes : unit -> bool *)
+val apply_changes : string list -> unit -> bool
 
 (* some validation, for some will be hard to be extrictly correct, may fall to the user to identify its wrong *)
 (* val validate_patterns : word_pattern list -> bool *)

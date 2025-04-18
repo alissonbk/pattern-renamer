@@ -224,6 +224,18 @@ let display_nd_confirm_changes flist () =
   ask_changes flist []
 
 
+let apply_changes confirmed_list () =
+  let rec apply_all = function
+    | [] -> true
+    | h :: t -> 
+      let cmd = "mv " ^ h ^ ".tmp" ^ " " ^ h in
+      Utils.run_cmd cmd |> ignore;
+      apply_all t
+  in
+  apply_all confirmed_list
+
+
+
 let run_steps args =
   let args = clean_up args in
   let valid = validate_args args in
@@ -238,7 +250,9 @@ let run_steps args =
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
   let file_list = File.read_file_tree () in
   temporary_replace_matches args file_list patterns;
-  display_nd_confirm_changes file_list () |> fun x -> printf "confirmed list: \n"; x |> List.iter (printf "%s, ");
+  let confirmed_list = display_nd_confirm_changes file_list () in
+  printf "confirmed list: \n"; List.iter (printf "%s, ") confirmed_list;
+  apply_changes confirmed_list () |> ignore;
   ()
 
 let entrypoint recursive ignore multiple_from multiple_to from_word to_word =
