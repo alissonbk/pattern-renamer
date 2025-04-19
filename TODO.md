@@ -7,4 +7,3 @@
   - return &TextFile{TextFileName: filename}
 - Ignore option
 - Test with multiple
-- Ignore binary/ELF files

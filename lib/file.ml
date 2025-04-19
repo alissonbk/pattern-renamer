@@ -15,3 +15,12 @@ let read_dir dir =
     
 
 let read_file_tree () = Sys.getcwd () |> read_dir
+
+(* run file --mime and checks for "charset=binary"; *)
+let is_binary fname = 
+  let cmd = "file --mime " ^ fname in
+  Utils.run_cmd cmd |> String.split_on_char '=' |>
+    function 
+      | _ :: h2 :: [] -> (String.trim h2) = "binary" 
+      | _ -> Printf.printf "invalid file --mime result for file : %s\n" fname; false
+  

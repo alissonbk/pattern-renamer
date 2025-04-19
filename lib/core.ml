@@ -197,7 +197,7 @@ let temporary_replace_matches args file_list (all_patterns: Types.all_patterns) 
   let rec loop_files = function 
     | [] -> printf "finished writting all temporary files...\n"      
     | file :: t -> 
-      write_tmp_files file all_patterns; 
+      if not @@ File.is_binary file then ( write_tmp_files file all_patterns ); 
       loop_files t
   in
   loop_files file_list
