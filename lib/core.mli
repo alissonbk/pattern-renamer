@@ -12,11 +12,12 @@ val entrypoint : bool -> string list -> string list -> string list -> string -> 
   -> optional Validate patterns ( maybe latter with better word pattern validation)  
   -> Temporary replace matches
   -> Display changes (before than after) and asking for confirm (y/n)
-  -> Apply changes (if accepted)
+  -> Apply changes
+  -> Clean up fs
 *)
 val run_steps : command_args -> unit
 
-val clean_up : command_args -> command_args
+val clean_up_args : command_args -> command_args
 
 val validate_args : command_args -> bool
 
@@ -39,6 +40,8 @@ val display_nd_confirm_changes : string list -> unit -> string list
 
 (* write changes to disk and return bool representing if it was successful *)
 val apply_changes : string list -> unit -> bool
+
+val clean_up_fs : string list -> unit
 
 (* some validation, for some will be hard to be extrictly correct, may fall to the user to identify its wrong *)
 (* val validate_patterns : word_pattern list -> bool *)

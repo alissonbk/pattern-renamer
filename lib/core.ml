@@ -1,7 +1,7 @@
 open Printf
 
 
-let clean_up (args : Types.command_args) : Types.command_args =    
+let clean_up_args (args : Types.command_args) : Types.command_args =    
   let rec clean_lst lst new_list = 
     match lst with
       | [] -> new_list
@@ -234,10 +234,21 @@ let apply_changes confirmed_list () =
   in
   apply_all confirmed_list
 
+let rec clean_up_fs = function
+  | [] -> ()
+  | h :: t ->
+    try      
+      Sys.remove @@ h ^ ".tmp";
+      clean_up_fs t
+    with
+      | Sys_error msg -> 
+        printf "failed to remove file: %s\n" msg;
+        clean_up_fs t
+    
 
 
 let run_steps args =
-  let args = clean_up args in
+  let args = clean_up_args args in
   let valid = validate_args args in
   if not valid then ( printf "some arg(s) are invalid! \n" ) else
 
@@ -252,7 +263,8 @@ let run_steps args =
   temporary_replace_matches args file_list patterns;
   let confirmed_list = display_nd_confirm_changes file_list () in
   printf "confirmed list: \n"; List.iter (printf "%s, ") confirmed_list;
-  apply_changes confirmed_list () |> ignore;
+  apply_changes confirmed_list () |> ignore;  
+  clean_up_fs file_list;
   ()
 
 let entrypoint recursive ignore multiple_from multiple_to from_word to_word =
