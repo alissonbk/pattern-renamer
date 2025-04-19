@@ -178,7 +178,7 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
         | _ -> failwith "invalid \"all patterns\" size"
   in
   let rec loop_all_file () =    
-    flush_all ();
+    flush stdout;
     match input_line fin with      
       | s -> 
         loop_all_patterns (all_patterns.from_lst, all_patterns.to_lst) s;
@@ -197,7 +197,7 @@ let temporary_replace_matches args file_list (all_patterns: Types.all_patterns) 
   let rec loop_files = function 
     | [] -> printf "finished writting all temporary files...\n"      
     | file :: t -> 
-      if not @@ File.is_binary file then ( write_tmp_files file all_patterns ); 
+      write_tmp_files file all_patterns; 
       loop_files t
   in
   loop_files file_list
@@ -214,7 +214,7 @@ let display_nd_confirm_changes flist () =
         if String.trim output = "" then ask_changes t accepted_lst 
         else (
           printf "accept changes (Y/n)?";          
-          flush_all ();
+          flush stdout;
           let r = Scanf.scanf "%s\n" (fun x -> String.lowercase_ascii x) in
           if r = "" || r = "y" then ask_changes t (h :: accepted_lst) 
           else ask_changes t accepted_lst
@@ -259,7 +259,7 @@ let run_steps args =
   from_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
   to_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
-  let file_list = File.read_file_tree () in
+  let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore args f) ) in
   temporary_replace_matches args file_list patterns;
   let confirmed_list = display_nd_confirm_changes file_list () in
   printf "confirmed list: \n"; List.iter (printf "%s, ") confirmed_list;
