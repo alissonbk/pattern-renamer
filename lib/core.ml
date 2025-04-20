@@ -133,26 +133,29 @@ let generate_patterns (from_pattern_list: Types.word_pattern list) (to_pattern_l
 
 
 (* TODO: remove non core functions from core module *)
-let replace_strline (from_keyword: Types.word_pattern) (to_keyword: Types.word_pattern) strline = 
+let rec replace_strline (from_keyword: Types.word_pattern) (to_keyword: Types.word_pattern) strline = 
+  let trigger_recursion_when_changed result =
+    if result <> strline then replace_strline from_keyword to_keyword result else result
+  in 
   match from_keyword with
       | Underscore v1 ->                 
         (match to_keyword with 
-          | Underscore v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp)
+          | Underscore v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp) |> trigger_recursion_when_changed
           | _ -> failwith "didnt match Underscore with expected type"
         )
       | CamelCase v1 ->
         (match to_keyword with 
-          | CamelCase v2 -> Utils.replace_substring strline v1 v2
+          | CamelCase v2 -> Utils.replace_substring strline v1 v2 |> trigger_recursion_when_changed
           | _ -> failwith "didnt match CamelCase with expected type"
         )
       | CapitalizedCamelCase v1 ->
         (match to_keyword with 
-          | CapitalizedCamelCase v2 -> Utils.replace_substring strline v1 v2
+          | CapitalizedCamelCase v2 -> Utils.replace_substring strline v1 v2 |> trigger_recursion_when_changed
           | _ -> failwith "didnt match CapitalizedCamelCase with expected type"
         )
       | SpaceSeparated v1 -> 
         (match to_keyword with 
-          | SpaceSeparated v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp)
+          | SpaceSeparated v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp) |> trigger_recursion_when_changed
           | _ -> failwith "didnt match SpaceSeparated with expected type"
         )
       | _ -> strline
