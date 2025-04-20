@@ -25,8 +25,8 @@ let validate_args (args : Types.command_args) : bool =
     then (raise (Invalid "there is no words to be changed")) 
     else
     match args.from_word with
-      | fw when fw <> "" && Utils.not_empty args.multiple_to || Utils.not_empty args.multiple_from || args.to_word = "" ->
-        raise (Invalid "when using positional arg from_word, only use the positional arg to_word")
+      | fw when fw <> "" && (Utils.not_empty args.multiple_to || Utils.not_empty args.multiple_from || args.to_word = "") ->
+        raise (Invalid "when using positional arg from_word, only use the positional arg to_word\n")
       | _ -> ();
     match args.multiple_from with
       | mf when Utils.empty mf -> true
@@ -163,28 +163,28 @@ let rec replace_strline (from_keyword: Types.word_pattern) (to_keyword: Types.wo
 (* TODO: remove non core functions from core module *)
 let write_tmp_files f_name (all_patterns: Types.all_patterns) =
   let fin = open_in f_name in
-  let tmp = open_out @@ f_name ^ ".tmp" in            
-  let rec search_and_replace (str_line: string) (pl_from: Types.word_pattern list) (pl_to: Types.word_pattern list) =
+  let tmp = open_out @@ f_name ^ ".tmp" in
+  let rec replace_all_list fromlst tolst str_line =
+    match (fromlst, tolst) with
+      | ([], []) -> str_line
+      | (hfrom :: tfrom), (hto :: tto) ->
+        let replaced = replace_strline hfrom hto str_line in
+        replace_all_list tfrom tto replaced
+      | _ -> failwith "lists are out of order"
+  in
+  let rec search_and_replace (str_line: string) (pl_from: Types.word_pattern list list) (pl_to: Types.word_pattern list list) =
     match (pl_from, pl_to) with
       | ([], []) -> fprintf tmp "%s\n" str_line
       | ((hfrom :: tfrom), (hto :: tto)) ->  
-        let replaced = replace_strline hfrom hto str_line in        
+        let replaced = replace_all_list hfrom hto str_line in        
         search_and_replace replaced tfrom tto
       | _ -> failwith "lists are out of order"                
   in
-  let rec loop_all_patterns tpl str_line = 
-    match tpl with
-        | ([], []) -> ()
-        | (from :: tfrom), (to_ :: tto) ->
-          search_and_replace str_line from to_;
-          loop_all_patterns (tfrom, tto) str_line
-        | _ -> failwith "invalid \"all patterns\" size"
-  in
-  let rec loop_all_file () =    
+  let rec loop_all_file () =
     flush_all ();
     match input_line fin with      
       | s -> 
-        loop_all_patterns (all_patterns.from_lst, all_patterns.to_lst) s;
+        search_and_replace s all_patterns.from_lst all_patterns.to_lst;
         loop_all_file ()
   in
   try  
