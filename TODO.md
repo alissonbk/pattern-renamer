@@ -5,5 +5,4 @@
 - Handle special characters cases
   - \*TextFile
   - return &TextFile{TextFileName: filename}
-- Ignore option
 - Test with multiple

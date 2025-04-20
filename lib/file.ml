@@ -25,8 +25,8 @@ let is_binary fname =
       | _ -> Printf.printf "invalid file --mime result for file : %s\n" fname; false
 
 
-(* FIXME: calling is_binary many times can cause performance issues as it is running a shell command every time
-  to fix this, file --mime can be called once to many files, but would be necessary a better lookup algorithm to check all the output at once*)
+(* FIXME: calling is_binary many times can cause performance issues as it is running a shell command every time.
+  To fix this, file --mime can be called once to many files, but would be necessary a better lookup algorithm to check all the output at once*)
 let should_ignore (args: Types.command_args) fname  = 
   let exception Found in
   if is_binary fname then ( true ) else
