@@ -28,4 +28,4 @@ setup.log
 # Local OPAM switch
 _opam/
 
-test_project
+test_project/

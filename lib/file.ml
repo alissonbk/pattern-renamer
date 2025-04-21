@@ -31,8 +31,15 @@ let should_ignore (args: Types.command_args) fname  =
   let exception Found in
   if is_binary fname then ( true ) else
   try
-    List.iter (fun s -> String.split_on_char '/' s |> List.mem fname |> fun ismem -> if ismem then (raise Found) ) args.ignore;
+    args.ignore |> List.iter (fun istr -> 
+        let re = Str.regexp_string istr in
+        (* will raise Not_found if it doesn't find *)
+        try
+          (Str.search_forward re fname 0) |> ignore;
+          (raise Found)
+        with
+          | Not_found -> ()
+    );
     false 
   with
-    | Found -> true
-  
+    | Found -> true    
