@@ -56,29 +56,6 @@ let has_lower cl =
         | Not_found -> false
 
 
-let print_flow_type = function
-        | Types.Single -> printf "Single\n"
-        | Types.Multiple -> printf "Multiple\n"
-        | Types.MultipleFromSingleTo -> printf "MultipleFromSingleTo\n"
-
-
-let print_patterns (all_patterns: Types.all_patterns) =        
-    let f p = p |> List.map (fun lst -> List.map (fun p -> 
-        match p with
-            | Types.Underscore v -> "Underscore: " ^ (unbox_extp v)
-            | Types.CamelCase v -> "CamelCase: " ^ v
-            | Types.CapitalizedCamelCase v -> "CapitalizedCamelCase: " ^ v
-            | Types.SpaceSeparated v -> "SpaceSeparated: " ^ (unbox_extp v)
-            | Types.Lower v -> "Lower: " ^ v
-            | Types.InvalidPattern -> "invalid pattern"
-        ) 
-        lst) 
-        |> mtx_to_string |> printf "%s \n"
-    in
-    f all_patterns.from_lst;
-    f all_patterns.to_lst
-
-
 (* replace only the pattern that was found *)
 let replace_substring s sub repl =
   let len_s = String.length s in

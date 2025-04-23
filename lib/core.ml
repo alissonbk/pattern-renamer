@@ -1,4 +1,3 @@
-open Printf
 
 
 let clean_up_args (args : Types.command_args) : Types.command_args =    
@@ -39,7 +38,7 @@ let validate_args (args : Types.command_args) : bool =
       | _ -> ();    
     true
   with
-    | Invalid s -> printf "invalid args: %s" s; false  
+    | Invalid s -> Log.log Error @@ "invalid args: " ^ s; false  
 
 
     
@@ -96,7 +95,7 @@ let identify_pattern s =
         (match h with
           | Types.Underscore s ->             
             if val_underscore s then validate t (h :: valid_lst) invalid_lst else validate t valid_lst (h :: invalid_lst)
-          | _ -> failwith "todo"      
+          | _ -> Log.log_nd_fail "todo"      
           (* TODO    *)
         )
   in
@@ -113,7 +112,7 @@ let to_underscore from multiple_from (flow_type : Types.flow_type) =
     | Types.SpaceSeparated v -> 
       let s = Utils.unbox_extp v in
       Types.Underscore (Types.AllLower (Transform.space_to_underscore s))
-    | _ -> failwith "not implemented" 
+    | _ -> Log.log_nd_fail "not implemented" 
   in
   match flow_type with 
     | Single -> [transform @@ identify_pattern from]
@@ -141,22 +140,22 @@ let rec replace_strline (from_keyword: Types.word_pattern) (to_keyword: Types.wo
       | Underscore v1 ->                 
         (match to_keyword with 
           | Underscore v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp) |> trigger_recursion_when_changed
-          | _ -> failwith "didnt match Underscore with expected type"
+          | _ -> Log.log_nd_fail "didnt match Underscore with expected type"
         )
       | CamelCase v1 ->
         (match to_keyword with 
           | CamelCase v2 -> Utils.replace_substring strline v1 v2 |> trigger_recursion_when_changed
-          | _ -> failwith "didnt match CamelCase with expected type"
+          | _ -> Log.log_nd_fail "didnt match CamelCase with expected type"
         )
       | CapitalizedCamelCase v1 ->
         (match to_keyword with 
           | CapitalizedCamelCase v2 -> Utils.replace_substring strline v1 v2 |> trigger_recursion_when_changed
-          | _ -> failwith "didnt match CapitalizedCamelCase with expected type"
+          | _ -> Log.log_nd_fail "didnt match CapitalizedCamelCase with expected type"
         )
       | SpaceSeparated v1 -> 
         (match to_keyword with 
           | SpaceSeparated v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp) |> trigger_recursion_when_changed
-          | _ -> failwith "didnt match SpaceSeparated with expected type"
+          | _ -> Log.log_nd_fail "didnt match SpaceSeparated with expected type"
         )
       | _ -> strline
 
@@ -170,15 +169,16 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
       | (hfrom :: tfrom), (hto :: tto) ->
         let replaced = replace_strline hfrom hto str_line in
         replace_all_list tfrom tto replaced
-      | _ -> failwith "lists are out of order"
+      | _ -> Log.log_nd_fail "lists are out of order"
   in
   let rec search_and_replace (str_line: string) (pl_from: Types.word_pattern list list) (pl_to: Types.word_pattern list list) =
     match (pl_from, pl_to) with
-      | ([], []) -> fprintf tmp "%s\n" str_line
+      | ([], []) -> Printf.fprintf tmp "%s\n" str_line
       | ((hfrom :: tfrom), (hto :: tto)) ->  
         let replaced = replace_all_list hfrom hto str_line in        
         search_and_replace replaced tfrom tto
-      | _ -> failwith "lists are out of order"                
+      | _ ->       
+        Log.log_nd_fail "lists are out of order"
   in
   let rec loop_all_file () =
     flush_all ();
@@ -190,14 +190,14 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
   try  
     loop_all_file ()
   with
-    | End_of_file -> printf "finished writing temporary file...\n"
+    | End_of_file -> Log.log Success "finished writing temporary file..."
     
 
 (* relly on the "from" and to "list" be both in order *)
 let temporary_replace_matches file_list (all_patterns: Types.all_patterns) =
-  Utils.print_patterns all_patterns;  
+  Log.log_patterns all_patterns;  
   let rec loop_files = function 
-    | [] -> printf "finished writting all temporary files...\n"      
+    | [] -> Log.log Success "finished writting all temporary files...\n"      
     | file :: t -> 
       write_tmp_files file all_patterns; 
       loop_files t
@@ -210,12 +210,12 @@ let display_nd_confirm_changes flist () =
       | [] -> accepted_lst      
       | h :: t ->         
         let cmd = "diff -ZBb --color=always " ^ h ^ " " ^ h ^ ".tmp" in
-        printf "executing %s\n" cmd;        
+        Log.log Info @@ "executing " ^ cmd;        
         let output = Utils.run_cmd cmd in
-        output |> printf "output: %s\n";        
+        Log.log Info @@ "output: " ^ output;
         if String.trim output = "" then ask_changes t accepted_lst 
         else (
-          printf "accept changes (Y/n)?";          
+          Log.log Ask "accept changes (Y/n)?";
           flush_all ();
           let r = Scanf.scanf "%s\n" (fun x -> String.lowercase_ascii x) in
           if r = "" || r = "y" then ask_changes t (h :: accepted_lst) 
@@ -244,7 +244,7 @@ let rec clean_up_fs = function
       clean_up_fs t
     with
       | Sys_error msg -> 
-        printf "failed to remove file: %s\n" msg;
+        Log.log Info @@ "failed to remove file: " ^ msg;
         clean_up_fs t
     
 
@@ -252,19 +252,21 @@ let rec clean_up_fs = function
 let run_steps args =
   let args = clean_up_args args in
   let valid = validate_args args in
-  if not valid then ( printf "some arg(s) are invalid! \n" ) else
+  if not valid then ( Log.log Warning "some arg(s) are invalid!" ) else
 
   let flow_t = discover_flow_type args in
-  Utils.print_flow_type flow_t;
+  Log.log_flow_type flow_t;
   let from_in_anchor_type = to_underscore args.from_word args.multiple_from flow_t in
   let to_in_anchor_type = to_underscore args.to_word args.multiple_to flow_t in
-  from_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
-  to_in_anchor_type |> List.iter (fun p -> printf "%s\n" (Utils.unbox_wp p));
+  (* FIXME: only execute this code when in debug mode *)
+  Log.log Debug "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
+  Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
   let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore args f) ) in
   temporary_replace_matches file_list patterns;
-  let confirmed_list = display_nd_confirm_changes file_list () in
-  printf "confirmed list: \n"; List.iter (printf "%s, ") confirmed_list;
+  let confirmed_list = display_nd_confirm_changes file_list () in  
+  (* FIXME: only execute this code when in debug mode *)
+  Log.log Debug "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log Debug e);
   apply_changes confirmed_list () |> ignore;  
   clean_up_fs file_list;
   ()
@@ -281,7 +283,7 @@ let entrypoint recursive ignore multiple_from multiple_to from_word to_word =
   in
   Utils.print_input_args args;
   run_steps args;
-  printf "\n\n"
+  Printf.printf "\n\n"
 
 
   

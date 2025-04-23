@@ -48,3 +48,16 @@ type flow_type =
   | Single
   | MultipleFromSingleTo
   | Multiple
+
+type flush_t = 
+  | None
+  | Stdout 
+  | All   
+
+type log_level = 
+  | Success
+  | Ask  
+  | Info 
+  | Warning 
+  | Error
+  | Debug
