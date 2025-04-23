@@ -2,7 +2,7 @@ open Types
 
 
 (* entrypoint called from the command.ml *)
-val entrypoint : bool -> string list -> string list -> string list -> string -> string -> unit
+val entrypoint : bool -> string list -> string list -> string list -> string -> string -> bool -> unit
 
 (* Divided in a few steps 
   -> Clean up
@@ -32,7 +32,7 @@ val to_underscore : string -> string list -> flow_type -> word_pattern list
 val generate_patterns : word_pattern list -> word_pattern list -> all_patterns
 
 (* find all matches *)
-val temporary_replace_matches : string list -> all_patterns -> unit
+val temporary_replace_matches : string list -> all_patterns -> bool -> unit
 
 (* display the changes before apply and asks y/n ** has side effects ** 
   recieves a list of the file names, show diff between orig. and .tmp then returns a list with accepted files*)

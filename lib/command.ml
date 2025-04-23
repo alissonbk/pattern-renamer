@@ -18,13 +18,17 @@ let multiple_to =
 
 let from_word =
   let doc = "The word pattern which will be replaced \n - Can be written in any pattern as simpleExample or simple_exmaple ... - When multiple from (--mf) is used this will be ignored" in  
-  Arg.(value & pos 0 string "" & info [] ~docv:"from" ~doc)
+  Arg.(value & pos 0 string "" & info [] ~docv:"From" ~doc)
 
 let to_word =
   let doc = "The word that will replace the from word - Can be written in any pattern as simpleExample or simple_exmaple ... - When multiple to (--mt) is used this will be ignored" in  
-  Arg.(value & pos 1 string "" & info [] ~docv:"to" ~doc)
+  Arg.(value & pos 1 string "" & info [] ~docv:"To" ~doc)
 
-let entrypoint_term = Term.(const Core.entrypoint $ recursive $ ignore $ multiple_from $ multiple_to $ from_word $ to_word)
+let debug_mode =
+  let doc = "Show debugging logs" in
+  Arg.(value & flag & info ["debug"] ~docv:"Debug mode" ~doc)
+
+let entrypoint_term = Term.(const Core.entrypoint $ recursive $ ignore $ multiple_from $ multiple_to $ from_word $ to_word $ debug_mode)
 
 let info =
   let doc = "Rename multiple words by pattern ex: someExample" in

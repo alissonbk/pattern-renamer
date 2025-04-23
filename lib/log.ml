@@ -25,9 +25,9 @@ let log_nd_fail message =
 
 
 let log_flow_type = function
-        | Types.Single -> log Info "Single"
-        | Types.Multiple -> log Info "Multiple\n"
-        | Types.MultipleFromSingleTo -> log Info "MultipleFromSingleTo\n"
+        | Types.Single -> log Info "flow_type: Single"
+        | Types.Multiple -> log Info "flow_type: Multiple"
+        | Types.MultipleFromSingleTo -> log Info "flow_type: MultipleFromSingleTo"
 
 
 let log_patterns (all_patterns: Types.all_patterns) =        
@@ -45,3 +45,7 @@ let log_patterns (all_patterns: Types.all_patterns) =
     in
     f all_patterns.from_lst;
     f all_patterns.to_lst
+
+let log_input_args (args : Types.command_args) =   
+    log Debug @@ Printf.sprintf "recursive: %b\nignore: %s\nmultiple_from: %s\nmultiple_to: %s\nfrom_word: %s\nto_word: %s\n" 
+    args.recursive (Utils.lst_to_string args.ignore) (Utils.lst_to_string args.multiple_from) (Utils.lst_to_string args.multiple_to) args.from_word args.to_word

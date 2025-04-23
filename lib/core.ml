@@ -13,7 +13,8 @@ let clean_up_args (args : Types.command_args) : Types.command_args =
     multiple_from = ( clean_lst args.multiple_from []);
     multiple_to = (clean_lst args.multiple_to []);
     from_word = String.trim args.from_word;
-    to_word = String.trim args.to_word
+    to_word = String.trim args.to_word;
+    debug_mode = args.debug_mode
   }
 
 let validate_args (args : Types.command_args) : bool =     
@@ -194,8 +195,10 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
     
 
 (* relly on the "from" and to "list" be both in order *)
-let temporary_replace_matches file_list (all_patterns: Types.all_patterns) =
-  Log.log_patterns all_patterns;  
+let temporary_replace_matches file_list (all_patterns: Types.all_patterns) debug_mode =
+  if debug_mode then (
+    Log.log_patterns all_patterns
+  );  
   let rec loop_files = function 
     | [] -> Log.log Success "finished writting all temporary files...\n"      
     | file :: t -> 
@@ -258,30 +261,35 @@ let run_steps args =
   Log.log_flow_type flow_t;
   let from_in_anchor_type = to_underscore args.from_word args.multiple_from flow_t in
   let to_in_anchor_type = to_underscore args.to_word args.multiple_to flow_t in
-  (* FIXME: only execute this code when in debug mode *)
-  Log.log Debug "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
-  Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
+  if args.debug_mode then (
+    Log.log Debug "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
+    Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e))
+  );  
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
   let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore args f) ) in
-  temporary_replace_matches file_list patterns;
+  temporary_replace_matches file_list patterns args.debug_mode;
   let confirmed_list = display_nd_confirm_changes file_list () in  
-  (* FIXME: only execute this code when in debug mode *)
-  Log.log Debug "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log Debug e);
+  if args.debug_mode then (
+    Log.log Debug "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log Debug e)
+  );  
   apply_changes confirmed_list () |> ignore;  
   clean_up_fs file_list;
   ()
 
-let entrypoint recursive ignore multiple_from multiple_to from_word to_word =
+let entrypoint recursive ignore multiple_from multiple_to from_word to_word debug_mode =
   let args : Types.command_args = {
     recursive = recursive;
     ignore = ignore;
     multiple_from = multiple_from;
     multiple_to = multiple_to;
     from_word = from_word;
-    to_word = to_word
+    to_word = to_word;
+    debug_mode = debug_mode
   }
   in
-  Utils.print_input_args args;
+  if args.debug_mode then (
+    Log.log_input_args args
+  );
   run_steps args;
   Printf.printf "\n\n"
 

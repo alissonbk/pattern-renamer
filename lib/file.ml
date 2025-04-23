@@ -22,7 +22,7 @@ let is_binary fname =
   Utils.run_cmd cmd |> String.split_on_char '=' |>
     function 
       | _ :: h2 :: [] -> (String.trim h2) = "binary" 
-      | _ -> Printf.printf "invalid file --mime result for file : %s\n" fname; false
+      | _ -> Log.log Warning @@ "invalid file --mime result for file : " ^ fname; false
 
 
 (* FIXME: calling is_binary many times can cause performance issues as it is running a shell command every time.

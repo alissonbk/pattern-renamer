@@ -1,5 +1,3 @@
-### FIXME: logs and error messages to stderr instead of plain printf
-
 ### Remaining
 
 - Test with multiple

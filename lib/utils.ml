@@ -1,4 +1,3 @@
-open Printf
 
 
 let lst_to_string = List.fold_left (fun acc curr -> if acc = "" then curr else acc ^ ", " ^ curr) ""
@@ -69,10 +68,6 @@ let replace_substring s sub repl =
     else loop (i + 1)
   in
   loop 0
-
-
-let print_input_args (args : Types.command_args) =   printf "recursive: %b\nignore: %s\nmultiple_from: %s\nmultiple_to: %s\nfrom_word: %s\nto_word: %s\n" 
-    args.recursive (lst_to_string args.ignore) (lst_to_string args.multiple_from) (lst_to_string args.multiple_to) args.from_word args.to_word
 
 
 let run_cmd cmd =

@@ -7,6 +7,7 @@ type command_args = {
   multiple_to : string list;
   from_word : string;
   to_word : string;
+  debug_mode : bool;
 }
 
 
