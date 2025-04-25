@@ -29,3 +29,7 @@ setup.log
 _opam/
 
 test_project/
+
+#binaries
+main
+main.native
