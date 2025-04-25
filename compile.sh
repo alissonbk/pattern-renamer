@@ -22,7 +22,7 @@ ocamlfind ocamlopt -g -package cmdliner,unix,spectrum,str -linkpkg renamer.cmxa 
 ocamlfind ocamlopt -g \
     -package cmdliner,unix,spectrum,str -linkpkg \
     -ccopt "-static -L$HOME/.opam/default/lib/pcre -l:pcre.a" \
-    renamer.cmxa ../bin/main.ml -o ../main.native
+    renamer.cmxa ../bin/main.ml -o ../main.static
 
 rm *.o *.cm* *.a;
 popd;

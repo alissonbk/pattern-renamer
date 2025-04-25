@@ -32,4 +32,4 @@ test_project/
 
 #binaries
 main
-main.native
+main.static
