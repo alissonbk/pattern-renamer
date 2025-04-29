@@ -28,8 +28,6 @@ setup.log
 # Local OPAM switch
 _opam/
 
-test_project/
-
 #binaries
 main
 main.static
