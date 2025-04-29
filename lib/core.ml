@@ -1,5 +1,4 @@
 
-
 let clean_up_args (args : Types.command_args) : Types.command_args =    
   let rec clean_lst lst new_list = 
     match lst with
@@ -113,43 +112,75 @@ let generate_patterns (from_pattern_list: Types.word_pattern list) (to_pattern_l
   { from_lst = loop [] from_pattern_list; to_lst = loop [] to_pattern_list }
 
 
+let is_ignored_pattern str_line token ignore_patterns = 
+  let exception Found in  
+  let rec loop = function
+    | [] -> false
+    | pattern :: t ->                   
+      let formated_token = Utils.replace_substring token token (".*" ^ token ^ ".*") in
+      let regexp = Utils.replace_substring pattern "$" formated_token |> fun str -> Log.log Info str; str |> Str.regexp in  
+      (* if 1 = 1 then (
+        let token = "textFile" in      
+        let formated_token = Utils.replace_substring token token (".*" ^ token ^ ".*") in
+        let pattern = "json:\"$\"" in
+        let regexp = Utils.replace_substring pattern "$" formated_token |> fun str -> Log.log Info str; str |> Str.regexp in  
+        Utils.str_contains "fodase json:\"textFileName\"" regexp |> fun b -> Printf.printf "%b\n" b;
+        failwith "fodase"
+      );                *)
+      if Utils.str_contains str_line regexp = true then (raise Found);
+      loop t
+  in
+  try 
+    loop ignore_patterns    
+  with 
+    | Found -> true
+
+
+
 (* TODO: remove non core functions from core module *)
-let rec replace_strline (from_keyword: Types.word_pattern) (to_keyword: Types.word_pattern) strline = 
+let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.word_pattern) (strline: string) (ignore_patterns: string list) = 
   let trigger_recursion_when_changed result =
-    if result <> strline then replace_strline from_keyword to_keyword result else result
+    if result <> strline then replace_strline from_pattern to_pattern result ignore_patterns else result
   in 
-  match from_keyword with
-      | Underscore v1 ->                 
-        (match to_keyword with 
-          | Underscore v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp) |> trigger_recursion_when_changed
+  let replace from_token to_token = 
+    if is_ignored_pattern strline from_token ignore_patterns then (
+      strline
+    ) else (
+      Utils.replace_substring strline from_token to_token
+    )
+  in
+  match from_pattern with
+      | Underscore from_p ->                 
+        (match to_pattern with 
+          | Underscore to_p -> replace (from_p |> Utils.unbox_extp) (to_p |> Utils.unbox_extp) |> trigger_recursion_when_changed
           | _ -> Log.log_nd_fail "didnt match Underscore with expected type"
         )
-      | CamelCase v1 ->
-        (match to_keyword with 
-          | CamelCase v2 -> Utils.replace_substring strline v1 v2 |> trigger_recursion_when_changed
+      | CamelCase from_token ->
+        (match to_pattern with 
+          | CamelCase to_token -> replace from_token to_token |> trigger_recursion_when_changed
           | _ -> Log.log_nd_fail "didnt match CamelCase with expected type"
         )
-      | CapitalizedCamelCase v1 ->
-        (match to_keyword with 
-          | CapitalizedCamelCase v2 -> Utils.replace_substring strline v1 v2 |> trigger_recursion_when_changed
+      | CapitalizedCamelCase from_token ->
+        (match to_pattern with 
+          | CapitalizedCamelCase to_token -> replace from_token to_token |> trigger_recursion_when_changed
           | _ -> Log.log_nd_fail "didnt match CapitalizedCamelCase with expected type"
         )
-      | SpaceSeparated v1 -> 
-        (match to_keyword with 
-          | SpaceSeparated v2 -> Utils.replace_substring strline (v1 |> Utils.unbox_extp) (v2 |> Utils.unbox_extp) |> trigger_recursion_when_changed
+      | SpaceSeparated from_token -> 
+        (match to_pattern with 
+          | SpaceSeparated to_token -> replace (from_token |> Utils.unbox_extp) (to_token |> Utils.unbox_extp) |> trigger_recursion_when_changed
           | _ -> Log.log_nd_fail "didnt match SpaceSeparated with expected type"
         )
       | _ -> strline
 
 (* TODO: remove non core functions from core module *)
-let write_tmp_files f_name (all_patterns: Types.all_patterns) =
+let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
   let fin = open_in f_name in
   let tmp = open_out @@ f_name ^ ".tmp" in
   let rec replace_all_list fromlst tolst str_line =
     match (fromlst, tolst) with
       | ([], []) -> str_line
       | (hfrom :: tfrom), (hto :: tto) ->
-        let replaced = replace_strline hfrom hto str_line in
+        let replaced = replace_strline hfrom hto str_line ignore_patterns in
         replace_all_list tfrom tto replaced
       | _ -> Log.log_nd_fail "lists are out of order"
   in
@@ -176,14 +207,11 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) =
     
 
 (* relly on the "from" and to "list" be both in order *)
-let temporary_replace_matches file_list (all_patterns: Types.all_patterns) debug_mode =
-  if debug_mode then (
-    Log.log_patterns all_patterns
-  );  
+let temporary_replace_matches file_list (all_patterns: Types.all_patterns) ignore_patterns =  
   let rec loop_files = function 
     | [] -> Log.log Success "finished writting all temporary files...\n"      
     | file :: t -> 
-      write_tmp_files file all_patterns; 
+      write_tmp_files file all_patterns ignore_patterns; 
       loop_files t
   in
   loop_files file_list
@@ -247,8 +275,11 @@ let run_steps args =
     Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e))
   );  
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
+  if args.debug_mode then (
+    Log.log_patterns patterns
+  );
   let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore args f) ) in
-  temporary_replace_matches file_list patterns args.debug_mode;
+  temporary_replace_matches file_list patterns args.ignore_patterns;
   let confirmed_list = display_nd_confirm_changes file_list () in  
   if args.debug_mode then (
     Log.log Debug "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log Debug e)

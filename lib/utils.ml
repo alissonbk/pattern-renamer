@@ -70,6 +70,13 @@ let replace_substring s sub repl =
   loop 0
 
 
+let str_contains str sub_regex =
+  try
+    ignore (Str.search_forward sub_regex str 0);
+    true
+  with Not_found -> false
+
+
 let run_cmd cmd =
   let inp = Unix.open_process_in cmd in
   let r = In_channel.input_all inp in
