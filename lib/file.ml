@@ -31,7 +31,7 @@ let should_ignore (args: Types.command_args) fname  =
   let exception Found in
   if is_binary fname then ( true ) else
   try
-    args.ignore |> List.iter (fun istr -> 
+    args.ignore_files |> List.iter (fun istr -> 
         let re = Str.regexp_string istr in
         (* will raise Not_found if it doesn't find *)
         try

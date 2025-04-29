@@ -4,9 +4,13 @@ let recursive =
   let doc = "Read sub directories recursively." in
   Arg.(value & flag & info ["r"; "recursive"] ~docv:"Recursive" ~doc)
 
-let ignore =
+let ignore_files =
   let doc = "List of files to be ignored." in
   Arg.(value & opt (list string) [] & info ["i"; "ignore"] ~docv:"Ignore" ~doc)
+
+let ignore_patterns =
+  let doc = "List of patterns to be ignored (normally something including the pattern that will actually be changed)." in
+  Arg.(value & opt (list string) [] & info ["ip"; "ignore-pattern"] ~docv:"Ignore pattern" ~doc)
 
 let multiple_from =
   let doc = "List of words to be replaced. The pos 0 (from) argument will be ignored" in
@@ -28,7 +32,7 @@ let debug_mode =
   let doc = "Show debugging logs" in
   Arg.(value & flag & info ["debug"] ~docv:"Debug mode" ~doc)
 
-let entrypoint_term = Term.(const Core.entrypoint $ recursive $ ignore $ multiple_from $ multiple_to $ from_word $ to_word $ debug_mode)
+let entrypoint_term = Term.(const Core.entrypoint $ recursive $ ignore_files $ ignore_patterns $ multiple_from $ multiple_to $ from_word $ to_word $ debug_mode)
 
 let info =
   let doc = "Rename multiple words by pattern ex: someExample" in

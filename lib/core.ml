@@ -9,7 +9,8 @@ let clean_up_args (args : Types.command_args) : Types.command_args =
   in      
  {
     recursive = args.recursive;
-    ignore = args.ignore;
+    ignore_files = args.ignore_files;
+    ignore_patterns = args.ignore_patterns;
     multiple_from = ( clean_lst args.multiple_from []);
     multiple_to = (clean_lst args.multiple_to []);
     from_word = String.trim args.from_word;
@@ -256,10 +257,11 @@ let run_steps args =
   clean_up_fs file_list;
   ()
 
-let entrypoint recursive ignore multiple_from multiple_to from_word to_word debug_mode =
+let entrypoint recursive ignore_files ignore_patterns multiple_from multiple_to from_word to_word debug_mode =
   let args : Types.command_args = {
     recursive = recursive;
-    ignore = ignore;
+    ignore_files = ignore_files;
+    ignore_patterns = ignore_patterns;
     multiple_from = multiple_from;
     multiple_to = multiple_to;
     from_word = from_word;

@@ -2,7 +2,8 @@
 
 type command_args = {
   recursive : bool;
-  ignore : string list;
+  ignore_files : string list;
+  ignore_patterns : string list;
   multiple_from : string list;
   multiple_to : string list;
   from_word : string;
