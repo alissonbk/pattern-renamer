@@ -43,6 +43,3 @@ val apply_changes : string list -> unit -> bool
 
 val clean_up_fs : string list -> unit
 
-(* some validation, for some will be hard to be extrictly correct, may fall to the user to identify its wrong *)
-(* val validate_patterns : word_pattern list -> bool *)
-

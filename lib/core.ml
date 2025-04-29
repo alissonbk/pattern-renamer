@@ -82,26 +82,6 @@ let identify_pattern s =
       ) else InvalidPattern
     | _ -> InvalidPattern
 
-(* let validate_patterns (wpl : Types.word_pattern list) = 
-  let val_underscore (s : string Types.extra_pattern_type) = 
-    String.contains (Utils.unbox_extp s) '_' 
-  in
-  let rec validate (main_lst: Types.word_pattern list) valid_lst invalid_lst =
-    match main_lst with
-      | [] -> if List.length invalid_lst > 0 then (
-        printf "these invalid patterns were found and will be ignored: %s" (Utils.lst_to_string @@ List.map (fun v -> Utils.unbox_wp v) invalid_lst)
-      );
-      valid_lst
-      | h :: t -> 
-        (match h with
-          | Types.Underscore s ->             
-            if val_underscore s then validate t (h :: valid_lst) invalid_lst else validate t valid_lst (h :: invalid_lst)
-          | _ -> Log.log_nd_fail "todo"      
-          (* TODO    *)
-        )
-  in
-  validate wpl [] [] *)
-
 
 (* identify and transform to underscore *)
 let to_underscore from multiple_from (flow_type : Types.flow_type) =
