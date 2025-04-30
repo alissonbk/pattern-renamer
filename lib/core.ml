@@ -112,14 +112,16 @@ let generate_patterns (from_pattern_list: Types.word_pattern list) (to_pattern_l
   { from_lst = loop [] from_pattern_list; to_lst = loop [] to_pattern_list }
 
 
-let is_ignored_pattern str_line token ignore_patterns = 
+let is_ignored_pattern str_line from_token to_token ignore_patterns = 
   let exception Found in  
   let rec loop = function
     | [] -> false
     | pattern :: t ->                  
-      let formated_token = Utils.replace_substring token token (".*" ^ token ^ ".*") in
-      let regexp = Utils.replace_substring pattern "$" formated_token |> Str.regexp in  
-      if Utils.str_contains str_line regexp = true then (raise Found);
+      let regexp token = Utils.replace_substring token token (".*" ^ token ^ ".*") |> Utils.replace_substring pattern "$" |> Str.regexp in      
+      let contains_before = Utils.str_contains str_line (regexp from_token) in
+      let replace_to = Utils.replace_substring str_line from_token to_token in
+      let contains_to = Utils.str_contains replace_to (regexp to_token) in      
+      if contains_before && contains_to then (raise Found);
       loop t
   in
   try 
@@ -135,7 +137,7 @@ let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.wo
     if result <> strline then replace_strline from_pattern to_pattern result ignore_patterns else result
   in
   let replace from_token to_token = 
-    if is_ignored_pattern strline from_token ignore_patterns then (
+    if is_ignored_pattern strline from_token to_token ignore_patterns then (
       strline
     ) else (
       Utils.replace_substring strline from_token to_token
