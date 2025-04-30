@@ -168,6 +168,7 @@ let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.wo
 let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
   let fin = open_in f_name in
   let tmp = open_out @@ f_name ^ ".tmp" in
+  Log.log Debug @@ "started writing temporary file " ^ f_name;
   let rec replace_all_list fromlst tolst str_line =
     match (fromlst, tolst) with
       | ([], []) -> str_line
@@ -185,15 +186,15 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
       | _ ->       
         Log.log_nd_fail "lists are out of order"
   in
-  let rec loop_all_file () =
-    flush_all ();
+  let rec loop_file () =    
+    flush_all ();    
     match input_line fin with      
-      | s -> 
+      | s ->         
         search_and_replace s all_patterns.from_lst all_patterns.to_lst;
-        loop_all_file ()
+        loop_file ()
   in
   try  
-    loop_all_file ()
+    loop_file ()
   with
     | End_of_file -> Log.log Debug "finished writing temporary file..."
     
