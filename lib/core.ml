@@ -116,7 +116,7 @@ let is_ignored_pattern str_line token ignore_patterns =
   let exception Found in  
   let rec loop = function
     | [] -> false
-    | pattern :: t ->                   
+    | pattern :: t ->                  
       let formated_token = Utils.replace_substring token token (".*" ^ token ^ ".*") in
       let regexp = Utils.replace_substring pattern "$" formated_token |> Str.regexp in  
       if Utils.str_contains str_line regexp = true then (raise Found);
@@ -133,7 +133,7 @@ let is_ignored_pattern str_line token ignore_patterns =
 let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.word_pattern) (strline: string) (ignore_patterns: string list) = 
   let trigger_recursion_when_changed result =
     if result <> strline then replace_strline from_pattern to_pattern result ignore_patterns else result
-  in 
+  in
   let replace from_token to_token = 
     if is_ignored_pattern strline from_token ignore_patterns then (
       strline
@@ -251,7 +251,7 @@ let rec clean_up_fs = function
       clean_up_fs t
     with
       | Sys_error msg -> 
-        Log.log Info @@ "failed to remove file: " ^ msg;
+        Log.log Debug @@ "failed to remove file: " ^ msg;
         clean_up_fs t
     
 

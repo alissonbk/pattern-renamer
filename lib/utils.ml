@@ -59,12 +59,16 @@ let has_lower cl =
 let replace_substring s sub repl =
   let len_s = String.length s in
   let len_sub = String.length sub in
-  let rec loop i =
-    if i > len_s - len_sub then s 
-    else if String.sub s i len_sub = sub then
-      let before = String.sub s 0 i in
-      let after = String.sub s (i + len_sub) (len_s - i - len_sub) in
-      before ^ repl ^ after
+  let len_repl = String.length repl in      
+  let rec loop i =    
+    if i < len_s - len_repl && String.sub s i len_repl = repl then loop (i + 1) 
+    else
+    if i > len_s - len_sub then s
+    else       
+      if String.sub s i len_sub = sub then        
+        let before = String.sub s 0 i in
+        let after = String.sub s (i + len_sub) (len_s - i - len_sub) in
+        before ^ repl ^ after
     else loop (i + 1)
   in
   loop 0

@@ -1,6 +1,6 @@
 ### Remaining
 
-- Ignore .git folder by default
+- Code improvement: create a global state for the args, so it wont not be necessary to pass as args every time...
 - Implement Gramatical type
   - Create assets for many language dictonaries
   - Create a flag and only use if flag is passed through args
