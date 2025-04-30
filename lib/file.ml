@@ -1,15 +1,16 @@
 
 
 let read_dir dir =
-  let rec loop lst = function
-    | [] -> lst
-    | f :: fs when Sys.is_directory f ->
-          Sys.readdir f
-          |> Array.to_list
-          |> List.map (Filename.concat f)
-          |> List.append fs
-          |> loop lst
-    | f :: fs -> loop (f :: lst) fs    
+  let rec loop final_lst = function
+    | [] -> final_lst
+    | h :: t when Sys.is_directory h ->                  
+      if Utils.str_contains h (Str.regexp ".git") then ( loop final_lst t) else
+      Sys.readdir h
+        |> Array.to_list
+        |> List.map (Filename.concat h)
+        |> List.append t
+        |> loop final_lst
+    | h :: t -> loop (h :: final_lst) t    
   in
     loop [] [dir]
     
