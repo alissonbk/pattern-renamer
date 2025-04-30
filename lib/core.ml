@@ -118,15 +118,7 @@ let is_ignored_pattern str_line token ignore_patterns =
     | [] -> false
     | pattern :: t ->                   
       let formated_token = Utils.replace_substring token token (".*" ^ token ^ ".*") in
-      let regexp = Utils.replace_substring pattern "$" formated_token |> fun str -> Log.log Info str; str |> Str.regexp in  
-      (* if 1 = 1 then (
-        let token = "textFile" in      
-        let formated_token = Utils.replace_substring token token (".*" ^ token ^ ".*") in
-        let pattern = "json:\"$\"" in
-        let regexp = Utils.replace_substring pattern "$" formated_token |> fun str -> Log.log Info str; str |> Str.regexp in  
-        Utils.str_contains "fodase json:\"textFileName\"" regexp |> fun b -> Printf.printf "%b\n" b;
-        failwith "fodase"
-      );                *)
+      let regexp = Utils.replace_substring pattern "$" formated_token |> Str.regexp in  
       if Utils.str_contains str_line regexp = true then (raise Found);
       loop t
   in
@@ -203,13 +195,13 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
   try  
     loop_all_file ()
   with
-    | End_of_file -> Log.log Success "finished writing temporary file..."
+    | End_of_file -> Log.log Debug "finished writing temporary file..."
     
 
 (* relly on the "from" and to "list" be both in order *)
 let temporary_replace_matches file_list (all_patterns: Types.all_patterns) ignore_patterns =  
   let rec loop_files = function 
-    | [] -> Log.log Success "finished writting all temporary files...\n"      
+    | [] -> Log.log Success "finished generating all temporary files...\n"      
     | file :: t -> 
       write_tmp_files file all_patterns ignore_patterns; 
       loop_files t
@@ -222,10 +214,12 @@ let display_nd_confirm_changes flist () =
       | [] -> accepted_lst      
       | h :: t ->         
         let cmd = "diff -ZBb --color=always " ^ h ^ " " ^ h ^ ".tmp" in
-        Log.log Info @@ "executing " ^ cmd;        
-        let output = Utils.run_cmd cmd in
-        Log.log Info @@ "output: " ^ output;
-        if String.trim output = "" then ask_changes t accepted_lst 
+        Log.log Debug @@ "executing " ^ cmd;                
+        let diff_output = Utils.run_cmd cmd in
+        let changes = String.trim diff_output <> "" in        
+        if changes then Log.log Info @@ "changes in file " ^ h;
+        Log.log Debug @@ "cmd output: " ^ diff_output;
+        if not changes then ask_changes t accepted_lst 
         else (
           Log.log Ask "accept changes (Y/n)?";
           flush_all ();
@@ -303,8 +297,7 @@ let entrypoint recursive ignore_files ignore_patterns multiple_from multiple_to 
   if args.debug_mode then (
     Log.log_input_args args
   );
-  run_steps args;
-  Printf.printf "\n\n"
+  run_steps args;  
 
 
   

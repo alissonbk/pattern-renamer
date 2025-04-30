@@ -9,7 +9,7 @@ let ignore_files =
   Arg.(value & opt (list string) [] & info ["i"; "ignore"] ~docv:"Ignore" ~doc)
 
 let ignore_patterns =
-  let doc = "List of patterns to be ignored (normally something including the pattern that will actually be changed)." in
+  let doc = "List of patterns to be ignored (use a \\\"\\$\\\"\ where the pattern will be example: json:\"\\\"\\$\\\"\")." in
   Arg.(value & opt (list string) [] & info ["ip"; "ignore-pattern"] ~docv:"Ignore pattern" ~doc)
 
 let multiple_from =
