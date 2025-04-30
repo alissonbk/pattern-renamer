@@ -1,8 +1,6 @@
 ### Remaining
 
-
-- Ignore pattern
-    - for instance in go i want to change everything from potassio to potassium but not in the db:"potassio" tag (dont want to rename the database), so would be interesting to have a ignore pattern to ignore cases like db:".*potassio.*"
+- Ignore .git folder by default
 - Implement Gramatical type
   - Create assets for many language dictonaries
   - Create a flag and only use if flag is passed through args
