@@ -55,8 +55,14 @@ let has_lower cl =
         | Not_found -> false
 
 
+let rec is_already_replaced_boundary (start_idx, end_idx) lst =
+  match lst with
+    | [] -> false
+    | h :: _ when h = (start_idx, end_idx) -> true
+    | _ :: t -> is_already_replaced_boundary (start_idx, end_idx) t
+
 (* replace only the pattern that was found *)
-let replace_substring s sub repl =
+let replace_substring ?(already_replaced: (int * int) list = []) s sub repl =
   let len_s = String.length s in
   let len_sub = String.length sub in
   let len_repl = String.length repl in      
@@ -66,7 +72,8 @@ let replace_substring s sub repl =
     else
     if i > len_s - len_sub then s
     else       
-      if String.sub s i len_sub = sub then        
+      if is_already_replaced_boundary (i, i + len_sub) already_replaced then s else
+      if String.sub s i len_sub = sub then                
         let before = String.sub s 0 i in
         let after = String.sub s (i + len_sub) (len_s - i - len_sub) in
         before ^ repl ^ after

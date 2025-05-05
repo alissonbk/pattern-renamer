@@ -1,5 +1,7 @@
 ### Remaining
 
+- If the TO argument has FROM argument as a substring some special care need to be taken:
+  - create a list of tuples (each tuple has an start_index and end_index) of the positions of the string that had already been changed
 - Code improvement: create a global state for the args, so it wont not be necessary to pass as args every time...
 - Implement Gramatical type
   - Create assets for many language dictonaries
