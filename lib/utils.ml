@@ -60,8 +60,9 @@ let replace_substring s sub repl =
   let len_s = String.length s in
   let len_sub = String.length sub in
   let len_repl = String.length repl in      
-  let rec loop i =    
-    if i < len_s - len_repl && String.sub s i len_repl = repl then loop (i + 1) 
+  let rec loop i =       
+    if i < len_s - len_repl && String.sub s i len_repl = repl && len_repl > len_sub 
+      then loop (i + 1)
     else
     if i > len_s - len_sub then s
     else       
