@@ -132,15 +132,15 @@ let is_ignored_pattern str_line from_token to_token ignore_patterns =
 
 
 (* TODO: remove non core functions from core module *)
-let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.word_pattern) (strline: string) (ignore_patterns: string list) = 
+let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.word_pattern) (strline: string) (ignore_patterns: string list) (already_replaced: (int * int) list ref) = 
   let trigger_recursion_when_changed result =
-    if result <> strline then replace_strline from_pattern to_pattern result ignore_patterns else result
+    if result <> strline then replace_strline from_pattern to_pattern result ignore_patterns already_replaced else result
   in
   let replace from_token to_token = 
     if is_ignored_pattern strline from_token to_token ignore_patterns then (
       strline
     ) else (
-      Utils.replace_substring strline from_token to_token
+      Utils.replace_substring strline from_token to_token ~already_replaced:already_replaced
     )
   in
   match from_pattern with
@@ -171,20 +171,20 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
   let fin = open_in f_name in
   let tmp = open_out @@ f_name ^ ".tmp" in
   Log.log Debug @@ "started writing temporary file " ^ f_name;
-  let rec replace_all_list fromlst tolst str_line =
+  let rec replace_all_list fromlst tolst str_line already_replaced =
     match (fromlst, tolst) with
       | ([], []) -> str_line
       | (hfrom :: tfrom), (hto :: tto) ->
-        let replaced = replace_strline hfrom hto str_line ignore_patterns in
-        replace_all_list tfrom tto replaced
+        let replaced = replace_strline hfrom hto str_line ignore_patterns already_replaced in
+        replace_all_list tfrom tto replaced already_replaced
       | _ -> Log.log_nd_fail "lists are out of order"
   in
-  let rec search_and_replace (str_line: string) (pl_from: Types.word_pattern list list) (pl_to: Types.word_pattern list list) =
+  let rec search_and_replace str_line (pl_from: Types.word_pattern list list) (pl_to: Types.word_pattern list list) already_replaced =
     match (pl_from, pl_to) with
       | ([], []) -> Printf.fprintf tmp "%s\n" str_line
       | ((hfrom :: tfrom), (hto :: tto)) ->  
-        let replaced = replace_all_list hfrom hto str_line in        
-        search_and_replace replaced tfrom tto
+        let replaced = replace_all_list hfrom hto str_line already_replaced in        
+        search_and_replace replaced tfrom tto already_replaced
       | _ ->       
         Log.log_nd_fail "lists are out of order"
   in
@@ -192,7 +192,7 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
     flush_all ();    
     match input_line fin with      
       | s ->         
-        search_and_replace s all_patterns.from_lst all_patterns.to_lst;
+        search_and_replace s all_patterns.from_lst all_patterns.to_lst (ref []);
         loop_file ()
   in
   try  
