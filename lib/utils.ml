@@ -72,15 +72,11 @@ let replace_substring ?(already_replaced: (int * int) list ref = ref []) s sub r
     else
     if i > len_s - len_sub then s
     else       
-      if is_bettwen_indexes i (i + len_sub) !already_replaced then (s)
+      if is_bettwen_indexes i (i + len_sub) !already_replaced then (loop (i + len_repl))
       else
       if String.sub s i len_sub = sub then                
         let before = String.sub s 0 i in
-        let after = String.sub s (i + len_sub) (len_s - i - len_sub) in
-        List.iter (fun (st, endd) -> Printf.printf "start %d end %d\n" st endd; Stdlib.flush_all ()) !already_replaced;
-        Printf.printf "\nlen: %d\n" @@ List.length !already_replaced;
-        Printf.printf "indexes: %d %d \nstring: %s \nbefore: %s\nafter: %s\n(i + len_sub): %d\n(len_s - i - len_sub): %d\n"i (i + len_repl) s before after (i + len_sub) (len_s - i - len_sub);
-        Stdlib.flush_all ();
+        let after = String.sub s (i + len_sub) (len_s - i - len_sub) in                
         already_replaced := (i, i + len_repl) :: !already_replaced;
         before ^ repl ^ after
     else loop (i + 1)
