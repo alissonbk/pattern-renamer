@@ -10,33 +10,18 @@ let clean_up_args (args : Types.command_args) : Types.command_args =
     recursive = args.recursive;
     ignore_files = args.ignore_files;
     ignore_patterns = args.ignore_patterns;
-    multiple_from = ( clean_lst args.multiple_from []);
-    multiple_to = (clean_lst args.multiple_to []);
-    from_word = String.trim args.from_word;
-    to_word = String.trim args.to_word;
+    from_words = ( clean_lst args.from_words []);
+    to_words = (clean_lst args.to_words []);    
     debug_mode = args.debug_mode
   }
 
+(* TODO : IMPROVE THIS *)
 let validate_args (args : Types.command_args) : bool =     
   let exception Invalid of string in
-
   try    
-    if Utils.empty args.multiple_to && Utils.empty args.multiple_from && args.to_word = "" && args.from_word = "" 
+    if Utils.empty args.to_words && Utils.empty args.from_words
     then (raise (Invalid "there is no words to be changed")) 
-    else
-    match args.from_word with
-      | fw when fw <> "" && (Utils.not_empty args.multiple_to || Utils.not_empty args.multiple_from || args.to_word = "") ->
-        raise (Invalid "when using positional arg from_word, only use the positional arg to_word\n")
-      | _ -> ();
-    match args.multiple_from with
-      | mf when Utils.empty mf -> true
-      | mf when Utils.dif_list_size mf args.multiple_to ->  
-        (match args.multiple_to with
-          | mt when Utils.empty mt && args.to_word <> "" -> true
-          | _ -> 
-            raise (Invalid "when using multiple from, specify a list of multiple_to with same size or a single to_word (positional arg)")
-        )
-      | _ -> ();    
+    else        
     true
   with
     | Invalid s -> Log.log Error @@ "invalid args: " ^ s; false  
@@ -44,11 +29,15 @@ let validate_args (args : Types.command_args) : bool =
 
     
 let discover_flow_type (args : Types.command_args) : Types.flow_type =
-  if Utils.not_empty args.multiple_from && Utils.empty args.multiple_to then (
+  if Utils.not_empty args.from_words && Utils.empty args.to_words then (
     Types.MultipleFromSingleTo
-  ) else if Utils.not_empty args.multiple_from && Utils.not_empty args.multiple_to then (
+  ) else if Utils.not_empty args.from_words && Utils.not_empty args.to_words then (
     Types.Multiple
-  ) else Types.Single
+  ) else  (
+    let msg = "could not discover_flow_type" in 
+    Log.log Error msg;
+    failwith msg
+  )
 
 
 let identify_extra_pattern s =
@@ -84,7 +73,7 @@ let identify_pattern s =
 
 
 (* identify and transform to underscore *)
-let to_underscore from multiple_from (flow_type : Types.flow_type) =
+let to_underscore from_words (flow_type : Types.flow_type) =
   let transform = function
     | Types.Underscore v -> Types.Underscore v
     | Types.CamelCase v -> Types.Underscore (Types.AllLower (Transform.camel_to_underscore v))
@@ -95,10 +84,9 @@ let to_underscore from multiple_from (flow_type : Types.flow_type) =
       Types.Underscore (Types.AllLower (Transform.space_to_underscore s))
     | _ -> Log.log_nd_fail "not implemented" 
   in
-  match flow_type with 
-    | Single -> [transform @@ identify_pattern from]
+  match flow_type with     
     | MultipleFromSingleTo 
-    | Multiple -> List.map (fun e -> transform @@ identify_pattern e) multiple_from
+    | Multiple -> List.map (fun e -> transform @@ identify_pattern e) from_words
 
 
 
@@ -265,8 +253,8 @@ let run_steps args =
 
   let flow_t = discover_flow_type args in
   Log.log_flow_type flow_t;
-  let from_in_anchor_type = to_underscore args.from_word args.multiple_from flow_t in
-  let to_in_anchor_type = to_underscore args.to_word args.multiple_to flow_t in
+  let from_in_anchor_type = to_underscore args.from_words flow_t in
+  let to_in_anchor_type = to_underscore args.to_words flow_t in
   if args.debug_mode then (
     Log.log Debug "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
     Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e))
@@ -285,15 +273,13 @@ let run_steps args =
   clean_up_fs file_list;
   ()
 
-let entrypoint recursive ignore_files ignore_patterns multiple_from multiple_to from_word to_word debug_mode =
+let entrypoint recursive ignore_files ignore_patterns from_words to_words debug_mode =
   let args : Types.command_args = {
     recursive = recursive;
     ignore_files = ignore_files;
-    ignore_patterns = ignore_patterns;
-    multiple_from = multiple_from;
-    multiple_to = multiple_to;
-    from_word = from_word;
-    to_word = to_word;
+    ignore_patterns = ignore_patterns;        
+    from_words = from_words;
+    to_words = to_words;
     debug_mode = debug_mode
   }
   in

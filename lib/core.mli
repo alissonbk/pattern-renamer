@@ -2,14 +2,14 @@ open Types
 
 
 (* entrypoint called from the command.ml *)
-val entrypoint : bool -> string list -> string list -> string list -> string list -> string -> string -> bool -> unit
+val entrypoint : bool -> string list -> string list -> string list -> string list -> bool -> unit
 
 (* Divided in a few steps 
   -> Clean up
   -> Validate args
   -> Transform to anchor pattern (Underscore) 
   -> Generate all patterns (so it can be searched)
-  -> optional Validate patterns ( maybe latter with better word pattern validation)  
+  -> for future use -> Validate patterns ( maybe latter with better word pattern validation)  
   -> Temporary replace matches
   -> Display changes (before than after) and asking for confirm (y/n)
   -> Apply changes
@@ -26,7 +26,7 @@ could be done in the validate_args fun., but would mix things up *)
 val discover_flow_type : command_args -> flow_type
 
 (* the application needs a anchor pattern to makes things easier, so this function transform any other pattern to underscore*)
-val to_underscore : string -> string list -> flow_type -> word_pattern list
+val to_underscore : string list -> flow_type -> word_pattern list
 
 (* a list of all writting_patterns for each word in the args *)
 val generate_patterns : word_pattern list -> word_pattern list -> all_patterns
