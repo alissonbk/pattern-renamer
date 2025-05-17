@@ -32,6 +32,6 @@ let info =
     `S Manpage.s_bugs;
     `P "." ]
   in
-  Cmd.info "pattern-renamer" ~version:"%‌%VERSION%%" ~doc ~exits:Cmd.Exit.defaults ~man
+  Cmd.info "pattern-renamer" ~version:"v0.0.3" ~doc ~exits:Cmd.Exit.defaults ~man
 
 let command_value = Cmd.v info entrypoint_term
