@@ -27,7 +27,3 @@ setup.log
 
 # Local OPAM switch
 _opam/
-
-#binaries
-pattern-renamer
-pattern-renamer.static
