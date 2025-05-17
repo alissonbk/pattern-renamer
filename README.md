@@ -43,17 +43,23 @@
 
 - to use the CLI you can write the term/word in any pattern (must be [supported](#supported-patterns) by the CLI)
 - use -r (recursive) to change files in subdirectories
-- first positional param is one or multiple (comma separated) term/words that you will rename from
-- second positional param is one or multiple (comma separated) term/words that you will rename to
+- **first positional** param is one or multiple (comma separated) term/words that you will rename from
+- **second positional** param is one or multiple (comma separated) term/words that you will rename to
 - this 2 params need to be ordered (1st "from", will match 1st "to")
 - example
   ```
-      pattern-renamer -r "someExample, anotherExample" "changedExample, anotherChangedExample"
+    pattern-renamer -r "someExample, anotherExample" "changedExample, anotherChangedExample"
   ```
 - ignore some files
   ```
-      pattern-renamer -r -i README.md "someExample" "changedExample"
+    pattern-renamer -r -i README.md "someExample" "changedExample"
   ```
+- For every line changes, the CLI will show the diff and ask if you want to apply. If you want to automatically confirm you can use the yes tool or something similar
+
+  ```
+    yes | pattern-renamer -r "someExample" "changedExample"
+  ```
+
 - there is many other options that can be seen via `pattern-renamer --help`
 
 ### Supported patterns
