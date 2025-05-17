@@ -29,5 +29,5 @@ setup.log
 _opam/
 
 #binaries
-main
-main.static
+pattern-renamer
+pattern-renamer.static
