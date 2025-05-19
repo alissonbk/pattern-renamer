@@ -5,3 +5,4 @@ module Types = Types
 module File = File
 module Transform = Transform
 module Log = Log
+module Global = Global

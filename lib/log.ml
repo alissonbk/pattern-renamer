@@ -10,7 +10,7 @@ let log ?(flush_t=None) (lvl: log_level) message =
     | Info -> Format.printf "@{<blue>%s@}\n" @@ "[Info] " ^ message
     | Warning -> Format.printf "@{<orange>%s@}\n\n" @@ "[Warning] " ^ message 
     | Error -> Format.printf "@{<red>%s@}\n\n" @@ "[Error] " ^ message;
-    | Debug -> Format.printf "@{<#964B00>%s@}\n\n" @@ "[Debug] " ^ message;
+    | Debug -> if Global.args.debug_mode then Format.printf "@{<#964B00>%s@}\n\n" @@ "[Debug] " ^ message;
   
   match flush_t with
     | None -> ()
@@ -29,7 +29,8 @@ let log_flow_type = function
         | Types.MultipleFromSingleTo -> log Info "flow_type: MultipleFromSingleTo"
 
 
-let log_patterns (all_patterns: Types.all_patterns) =        
+let log_patterns (all_patterns: Types.all_patterns) = 
+    if not Global.args.debug_mode then () else
     let f p = p |> List.map (fun lst -> List.map (fun p -> 
         match p with
             | Types.Underscore v -> "Underscore: " ^ (Utils.unbox_extp v)

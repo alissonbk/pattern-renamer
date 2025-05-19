@@ -1,4 +1,5 @@
 
+
 let clean_up_args (args : Types.command_args) : Types.command_args =    
   let rec clean_lst lst new_list = 
     match lst with
@@ -28,10 +29,10 @@ let validate_args (args : Types.command_args) : bool =
 
 
     
-let discover_flow_type (args : Types.command_args) : Types.flow_type =
-  if Utils.not_empty args.from_words && Utils.empty args.to_words then (
+let discover_flow_type : Types.flow_type =  
+  if Utils.not_empty Global.args.from_words && Utils.empty Global.args.to_words then (
     Types.MultipleFromSingleTo
-  ) else if Utils.not_empty args.from_words && Utils.not_empty args.to_words then (
+  ) else if Utils.not_empty Global.args.from_words && Utils.not_empty Global.args.to_words then (
     Types.Multiple
   ) else  (
     let msg = "could not discover_flow_type" in 
@@ -73,7 +74,7 @@ let identify_pattern s =
 
 
 (* identify and transform to underscore *)
-let to_underscore from_words (flow_type : Types.flow_type) =
+let to_underscore words (flow_type : Types.flow_type) =
   let transform = function
     | Types.Underscore v -> Types.Underscore v
     | Types.CamelCase v -> Types.Underscore (Types.AllLower (Transform.camel_to_underscore v))
@@ -86,7 +87,7 @@ let to_underscore from_words (flow_type : Types.flow_type) =
   in
   match flow_type with     
     | MultipleFromSingleTo 
-    | Multiple -> List.map (fun e -> transform @@ identify_pattern e) from_words
+    | Multiple -> List.map (fun e -> transform @@ identify_pattern e) words
 
 
 
@@ -233,60 +234,42 @@ let apply_changes confirmed_list () =
   in
   apply_all confirmed_list
 
-let rec clean_up_fs = function
-  | [] -> ()
-  | h :: t ->
-    try      
-      Sys.remove @@ h ^ ".tmp";
-      clean_up_fs t
-    with
-      | Sys_error msg -> 
-        Log.log Debug @@ "failed to remove file: " ^ msg;
-        clean_up_fs t
+
     
 
 
-let run_steps args =
-  let args = clean_up_args args in
-  let valid = validate_args args in
+let run_steps =
+  Global.set_args_state @@ clean_up_args Global.args;
+  let valid = validate_args Global.args in
   if not valid then ( Log.log Warning "some arg(s) are invalid!" ) else
 
-  let flow_t = discover_flow_type args in
+  let flow_t = discover_flow_type in
   Log.log_flow_type flow_t;
-  let from_in_anchor_type = to_underscore args.from_words flow_t in
-  let to_in_anchor_type = to_underscore args.to_words flow_t in
-  if args.debug_mode then (
-    Log.log Debug "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
-    Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e))
-  );  
+  let from_in_anchor_type = to_underscore Global.args.from_words flow_t in
+  let to_in_anchor_type = to_underscore Global.args.to_words flow_t in  
+  Log.log Debug "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
+  Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
-  if args.debug_mode then (
-    Log.log_patterns patterns
-  );
-  let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore args f) ) in
-  temporary_replace_matches file_list patterns args.ignore_patterns;
-  let confirmed_list = display_nd_confirm_changes file_list () in  
-  if args.debug_mode then (
-    Log.log Debug "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log Debug e)
-  );  
+  Log.log_patterns patterns;  
+  let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore Global.args f) ) in
+  temporary_replace_matches file_list patterns Global.args.ignore_patterns;
+  let confirmed_list = display_nd_confirm_changes file_list () in    
+  Log.log Debug "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log Debug e);
   apply_changes confirmed_list () |> ignore;  
-  clean_up_fs file_list;
+  File.clean_up_fs file_list;
   ()
 
-let entrypoint recursive ignore_files ignore_patterns from_words to_words debug_mode =
-  let args : Types.command_args = {
+let entrypoint recursive ignore_files ignore_patterns from_words to_words debug_mode =  
+  Global.set_args_state {
     recursive = recursive;
     ignore_files = ignore_files;
     ignore_patterns = ignore_patterns;        
     from_words = from_words;
     to_words = to_words;
     debug_mode = debug_mode
-  }
-  in
-  if args.debug_mode then (
-    Log.log_input_args args
-  );
-  run_steps args;  
+  };  
+  Log.log_input_args Global.args;
+  run_steps;  
 
 
   

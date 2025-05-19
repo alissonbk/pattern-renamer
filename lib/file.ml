@@ -44,3 +44,15 @@ let should_ignore (args: Types.command_args) fname  =
     false 
   with
     | Found -> true    
+
+
+let rec clean_up_fs = function
+  | [] -> ()
+  | h :: t ->
+    try      
+      Sys.remove @@ h ^ ".tmp";
+      clean_up_fs t
+    with
+      | Sys_error msg -> 
+        Log.log Debug @@ "failed to remove file: " ^ msg;
+        clean_up_fs t

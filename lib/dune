@@ -1,4 +1,4 @@
 (library
  (name renamer)
- (modules renamer command core utils types transform file log)
+ (modules renamer command core utils types transform file log global)
  (libraries cmdliner unix str spectrum))
