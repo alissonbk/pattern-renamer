@@ -1,5 +1,5 @@
 #!/bin/bash
 
 sh compile.sh;
-sudo cp main /usr/bin/pattern-renamer;
-rm main main.static;
+sudo cp pattern-renamer /usr/bin/pattern-renamer;
+# rm pattern-renamer pattern-renamer.static;
