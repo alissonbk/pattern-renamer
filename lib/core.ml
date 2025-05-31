@@ -155,10 +155,10 @@ let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.wo
       | _ -> strline
 
 (* TODO: remove non core functions from core module *)
-let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
+let write_tmp_files args f_name (all_patterns: Types.all_patterns) ignore_patterns =
   let fin = open_in f_name in
   let tmp = open_out @@ f_name ^ ".tmp" in
-  Log.log Debug @@ "started writing temporary file " ^ f_name;
+  Log.log (Debug args) @@ "started writing temporary file " ^ f_name;
   let rec replace_all_list fromlst tolst str_line already_replaced =
     match (fromlst, tolst) with
       | ([], []) -> str_line
@@ -186,30 +186,32 @@ let write_tmp_files f_name (all_patterns: Types.all_patterns) ignore_patterns =
   try  
     loop_file ()
   with
-    | End_of_file -> Log.log Debug "finished writing temporary file..."
+    | End_of_file -> Log.log (Debug args) "finished writing temporary file..."
     
 
 (* relly on the "from" and to "list" be both in order *)
-let temporary_replace_matches file_list (all_patterns: Types.all_patterns) ignore_patterns =  
+let temporary_replace_matches args file_list (all_patterns: Types.all_patterns) ignore_patterns =  
   let rec loop_files = function 
     | [] -> Log.log Success "finished generating all temporary files...\n"      
     | file :: t -> 
-      write_tmp_files file all_patterns ignore_patterns; 
+      write_tmp_files args file all_patterns ignore_patterns; 
       loop_files t
   in
   loop_files file_list
 
-let display_nd_confirm_changes flist () =
+let display_nd_confirm_changes args flist () =
   let rec ask_changes lst accepted_lst =
     match lst with
       | [] -> accepted_lst      
       | h :: t ->         
         let cmd = "diff -ZBb --color=always " ^ h ^ " " ^ h ^ ".tmp" in
-        Log.log Debug @@ "executing " ^ cmd;                
+        Log.log (Debug args) @@ "executing " ^ cmd;                
         let diff_output = Utils.run_cmd cmd in
         let changes = String.trim diff_output <> "" in        
-        if changes then Log.log Info @@ "changes in file " ^ h;
-        Log.log Debug @@ "cmd output: " ^ diff_output;
+        if changes then (
+          Log.log Info @@ "changes in file " ^ h;
+          Log.log Info @@ "cmd output: " ^ diff_output;        
+        );
         if not changes then ask_changes t accepted_lst 
         else (
           Log.log Ask "accept changes (Y/n)?";
@@ -233,16 +235,16 @@ let apply_changes confirmed_list () =
   in
   apply_all confirmed_list
 
-let rec clean_up_fs = function
+let rec clean_up_fs args = function
   | [] -> ()
   | h :: t ->
     try      
       Sys.remove @@ h ^ ".tmp";
-      clean_up_fs t
+      clean_up_fs args t
     with
       | Sys_error msg -> 
-        Log.log Debug @@ "failed to remove file: " ^ msg;
-        clean_up_fs t
+        Log.log (Debug args) @@ "failed to remove file: " ^ msg;
+        clean_up_fs args t
     
 
 
@@ -256,21 +258,21 @@ let run_steps args =
   let from_in_anchor_type = to_underscore args.from_words flow_t in
   let to_in_anchor_type = to_underscore args.to_words flow_t in
   if args.debug_mode then (
-    Log.log Debug "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e));
-    Log.log Debug "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log Debug (Utils.unbox_wp e))
+    Log.log (Debug args) "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log (Debug args) (Utils.unbox_wp e));
+    Log.log (Debug args) "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log (Debug args) (Utils.unbox_wp e))
   );  
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
   if args.debug_mode then (
-    Log.log_patterns patterns
+    Log.log_patterns args patterns
   );
   let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore args f) ) in
-  temporary_replace_matches file_list patterns args.ignore_patterns;
-  let confirmed_list = display_nd_confirm_changes file_list () in  
+  temporary_replace_matches args file_list patterns args.ignore_patterns;
+  let confirmed_list = display_nd_confirm_changes args file_list () in  
   if args.debug_mode then (
-    Log.log Debug "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log Debug e)
+    Log.log (Debug args) "Confirmed list: "; confirmed_list |> List.iter (fun e -> Log.log (Debug args) e)
   );  
   apply_changes confirmed_list () |> ignore;  
-  clean_up_fs file_list;
+  clean_up_fs args file_list;
   ()
 
 let entrypoint recursive ignore_files ignore_patterns from_words to_words debug_mode =

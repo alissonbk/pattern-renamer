@@ -59,4 +59,4 @@ type log_level =
   | Info 
   | Warning 
   | Error
-  | Debug
+  | Debug of command_args

@@ -32,14 +32,14 @@ val to_underscore : string list -> flow_type -> word_pattern list
 val generate_patterns : word_pattern list -> word_pattern list -> all_patterns
 
 (* find all matches *)
-val temporary_replace_matches : string list -> all_patterns -> string list -> unit
+val temporary_replace_matches : command_args -> string list -> all_patterns -> string list -> unit
 
 (* display the changes before apply and asks y/n ** has side effects ** 
   recieves a list of the file names, show diff between orig. and .tmp then returns a list with accepted files*)
-val display_nd_confirm_changes : string list -> unit -> string list
+val display_nd_confirm_changes : command_args -> string list -> unit -> string list
 
 (* write changes to disk and return bool representing if it was successful *)
 val apply_changes : string list -> unit -> bool
 
-val clean_up_fs : string list -> unit
+val clean_up_fs : command_args -> string list -> unit
 
