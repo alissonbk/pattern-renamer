@@ -10,6 +10,7 @@ let clean_up_args (args : Types.command_args) : Types.command_args =
     recursive = args.recursive;
     ignore_files = args.ignore_files;
     ignore_patterns = args.ignore_patterns;
+    yes = args.yes;
     from_words = ( clean_lst args.from_words []);
     to_words = (clean_lst args.to_words []);    
     debug_mode = args.debug_mode
@@ -212,6 +213,7 @@ let display_nd_confirm_changes args flist () =
           Log.log Info @@ "changes in file " ^ h;
           Log.log Info @@ "cmd output: " ^ diff_output;        
         );
+        if args.yes then ( ask_changes t (h :: accepted_lst)) else
         if not changes then ask_changes t accepted_lst 
         else (
           Log.log Ask "accept changes (Y/n)?";
@@ -275,11 +277,12 @@ let run_steps args =
   clean_up_fs args file_list;
   ()
 
-let entrypoint recursive ignore_files ignore_patterns from_words to_words debug_mode =
+let entrypoint recursive ignore_files ignore_patterns yes from_words to_words debug_mode =
   let args : Types.command_args = {
     recursive = recursive;
     ignore_files = ignore_files;
     ignore_patterns = ignore_patterns;        
+    yes = yes;
     from_words = from_words;
     to_words = to_words;
     debug_mode = debug_mode

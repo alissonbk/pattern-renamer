@@ -4,6 +4,7 @@ type command_args = {
   recursive : bool;
   ignore_files : string list;
   ignore_patterns : string list;  
+  yes : bool;
   from_words : string list;
   to_words : string list;
   debug_mode : bool;
