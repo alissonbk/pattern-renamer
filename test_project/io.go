@@ -8,7 +8,7 @@ import (
 var _ IO = (*TextFile)(nil)
 
 type TextFile struct {
-	TextFileName  string `json:"textFileName"`
+	TextFileName  string `json:"textFileName" db:"textFileName"`
 	fileReference *os.File
 	content       []byte
 }
