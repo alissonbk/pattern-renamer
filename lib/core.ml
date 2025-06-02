@@ -101,7 +101,7 @@ let generate_patterns (from_pattern_list: Types.word_pattern list) (to_pattern_l
   { from_lst = loop [] from_pattern_list; to_lst = loop [] to_pattern_list }
 
 
-let is_ignored_pattern str_line from_token to_token ignore_patterns = 
+let mark_ignored_pattern str_line from_token to_token ignore_patterns (already_replaced: (int * int) list ref) = 
   let exception Found in  
   let rec loop = function
     | [] -> false
@@ -110,7 +110,12 @@ let is_ignored_pattern str_line from_token to_token ignore_patterns =
       let contains_before = Utils.str_contains str_line (regexp from_token) in
       let replace_to = Utils.replace_substring str_line from_token to_token in
       let contains_to = Utils.str_contains replace_to (regexp to_token) in      
-      if contains_before && contains_to then (raise Found);
+      if contains_before && contains_to then (
+        (match Utils.find_substring_index str_line from_token with
+          | Some start_idx -> already_replaced := (start_idx, start_idx + String.length from_token) :: !already_replaced;
+          | None -> failwith "could not find the start index for a found ignore_pattern, this should never happen");
+        raise Found
+      );
       loop t
   in
   try 
@@ -126,14 +131,11 @@ let rec replace_strline (from_pattern: Types.word_pattern) (to_pattern: Types.wo
     if result <> strline then replace_strline from_pattern to_pattern result ignore_patterns already_replaced else result
   in
   let replace from_token to_token = 
-    if is_ignored_pattern strline from_token to_token ignore_patterns then (
-      strline
-    ) else (
-      Utils.replace_substring strline from_token to_token ~already_replaced:already_replaced
-    )
+    mark_ignored_pattern strline from_token to_token ignore_patterns already_replaced |> ignore;
+    Utils.replace_substring strline from_token to_token ~already_replaced:already_replaced
   in
   match from_pattern with
-      | Underscore from_p ->                 
+      | Underscore from_p ->
         (match to_pattern with 
           | Underscore to_p -> replace (from_p |> Utils.unbox_extp) (to_p |> Utils.unbox_extp) |> trigger_recursion_when_changed
           | _ -> Log.log_nd_fail "didnt match Underscore with expected type"

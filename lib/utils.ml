@@ -83,12 +83,17 @@ let replace_substring ?(already_replaced: (int * int) list ref = ref []) s sub r
   in
   loop 0
 
+let find_substring_index haystack needle =
+  try Some (Str.search_forward (Str.regexp_string needle) haystack 0)
+  with Not_found -> None
+
 
 let str_contains str sub_regex =
   try
     ignore (Str.search_forward sub_regex str 0);
     true
-  with Not_found -> false
+  with 
+    | Not_found -> false
 
 
 let run_cmd cmd =
