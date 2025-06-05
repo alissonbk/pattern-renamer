@@ -1,6 +1,7 @@
 ### Remaining
 
-- Fix ignore patterns
+- Fix ignore patterns (test more, but i think its okay now)
+- Fix usage as a simple renamer (there is only a single pattern but need to be renamed in multiple files. This should be working....)
 - Fix ignore files (accept directory names without full path)
 - Code improvement: create a global state for the args, so it wont not be necessary to pass as args every time...
 - Implement Gramatical type
