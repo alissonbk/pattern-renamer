@@ -2,8 +2,10 @@
 
 - Fix ignore patterns (test more, but i think its okay now)
 - Fix usage as a simple renamer (there is only a single pattern but need to be renamed in multiple files. This should be working....)
-- Fix ignore files (accept directory names without full path)
-- Code improvement: create a global state for the args, so it wont not be necessary to pass as args every time...
+- Fix ignore files
+  - accept directory names without full path
+  - not working when using 2 directories like: (pattern-renamer --debug -i ".next, node_modules" test testing)
+- Add default famous directories and ask if want to ignore them when existing like (node_modules, java target folder, .next, anything that have non binary files...)
 - Implement Gramatical type
   - Create assets for many language dictonaries
   - Create a flag and only use if flag is passed through args
