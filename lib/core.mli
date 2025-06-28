@@ -19,6 +19,8 @@ val run_steps : command_args -> unit
 
 val clean_up_args : command_args -> command_args
 
+val read_default_ignored_folders : command_args -> command_args
+
 val validate_args : command_args -> bool
 
 (* considering args validated, discover which flow is it doing based on args, 

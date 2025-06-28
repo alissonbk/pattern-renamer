@@ -16,6 +16,14 @@ let clean_up_args (args : Types.command_args) : Types.command_args =
     debug_mode = args.debug_mode
   }
 
+let read_default_ignored_folders (args : Types.command_args) : Types.command_args =
+  let fin = open_in "/etc/pr-ignored-folders.cfg" in
+  input_line fin |> ignore;
+  let default_ignored_folders = input_line fin |> String.split_on_char ',' |> List.map String.trim in  
+  { args with ignore_files = args.ignore_files @ default_ignored_folders }  
+
+
+
 (* TODO : IMPROVE THIS *)
 let validate_args (args : Types.command_args) : bool =     
   let exception Invalid of string in
@@ -253,7 +261,7 @@ let rec clean_up_fs args = function
 
 
 let run_steps args =
-  let args = clean_up_args args in
+  let args = args |> clean_up_args |> read_default_ignored_folders in  
   let valid = validate_args args in
   if not valid then ( Log.log Warning "some arg(s) are invalid!" ) else
 
