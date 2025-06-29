@@ -18,6 +18,6 @@ pkgver() {
 
 package() {
   cd "$srcdir/$pkgname"
-  cp "$ignored_folders" /etc
+  install -Dm644 "$ignored_folders" "${pkgdir}/etc/$ignored_folders"
   install -Dm755 pattern-renamer.static "$pkgdir/usr/bin/pattern-renamer"
 }
