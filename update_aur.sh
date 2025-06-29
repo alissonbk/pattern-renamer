@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DEST=~/projects/aur/pattern-renamer/
-sh bump-cmdliner-version.sh
+sh bump-version.sh
 makepkg --printsrcinfo > .SRCINFO
 cp PKGBUILD $DEST
 cp .SRCINFO $DEST
