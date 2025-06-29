@@ -46,5 +46,5 @@ let log_patterns args (all_patterns: Types.all_patterns) =
     f all_patterns.to_lst
 
 let log_input_args (args : Types.command_args) =   
-    log (Debug args) @@ Printf.sprintf "recursive: %b\nignore_files: %s\nignore_patterns: %s\nfrom_words: %s\nto_words: %s\n"
+    log (Debug args) @@ Printf.sprintf "args = \nrecursive: %b\nignore_files: %s\nignore_patterns: %s\nfrom_words: %s\nto_words: %s\n"
     args.recursive (Utils.lst_to_string args.ignore_files) (Utils.lst_to_string args.ignore_patterns) (Utils.lst_to_string args.from_words) (Utils.lst_to_string args.to_words)

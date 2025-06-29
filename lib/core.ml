@@ -264,7 +264,7 @@ let run_steps args =
   let args = args |> clean_up_args |> read_default_ignored_folders in  
   let valid = validate_args args in
   if not valid then ( Log.log Warning "some arg(s) are invalid!" ) else
-
+  Log.log_input_args args;
   let flow_t = discover_flow_type args in
   Log.log_flow_type flow_t;
   let from_in_anchor_type = to_underscore args.from_words flow_t in
