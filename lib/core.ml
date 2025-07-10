@@ -260,15 +260,16 @@ let rec clean_up_fs args = function
     
 
 
-let run_steps args =
+let run_steps args =    
   let args = args |> clean_up_args |> read_default_ignored_folders in  
   let valid = validate_args args in
-  if not valid then ( Log.log Warning "some arg(s) are invalid!" ) else
+  if not valid then ( Log.log Warning "some arg(s) are invalid!" ) else  
+  Log.log (Debug args) "running with debug mode" ~flush_t:Types.Stdout;  
   Log.log_input_args args;
   let flow_t = discover_flow_type args in
   Log.log_flow_type flow_t;
   let from_in_anchor_type = to_underscore args.from_words flow_t in
-  let to_in_anchor_type = to_underscore args.to_words flow_t in
+  let to_in_anchor_type = to_underscore args.to_words flow_t in  
   if args.debug_mode then (
     Log.log (Debug args) "\"From\" in anchor type:"; from_in_anchor_type |> List.iter (fun e -> Log.log (Debug args) (Utils.unbox_wp e));
     Log.log (Debug args) "\"To\" in anchor type:"; to_in_anchor_type |> List.iter (fun e -> Log.log (Debug args) (Utils.unbox_wp e))
@@ -276,8 +277,9 @@ let run_steps args =
   let patterns = generate_patterns from_in_anchor_type to_in_anchor_type in  
   if args.debug_mode then (
     Log.log_patterns args patterns
-  );
-  let file_list = File.read_file_tree () |> List.filter (fun f -> not (File.should_ignore args f) ) in
+  );  
+  let file_list = File.read_file_tree args () |> List.filter (fun f -> not (File.should_ignore args f) ) in
+  Log.log (Debug args) "File list"; file_list |> List.iter (fun f -> Log.log (Debug args) (f ^ " "));
   temporary_replace_matches args file_list patterns args.ignore_patterns;
   let confirmed_list = display_nd_confirm_changes args file_list () in  
   if args.debug_mode then (

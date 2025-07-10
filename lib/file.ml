@@ -1,10 +1,12 @@
 
 
-let read_dir dir =
+let read_dir (args: Types.command_args) dir =  
   let rec loop final_lst = function
     | [] -> final_lst
-    | h :: t when Sys.is_directory h ->                  
-      if Utils.str_contains h (Str.regexp ".git") then ( loop final_lst t) else
+    | h :: t when Sys.is_directory h ->             
+      if List.filter (fun el -> Utils.str_contains h (Str.regexp el)) args.ignore_files |> List.length |> fun n -> n > 0 then
+        loop final_lst t 
+      else      
       Sys.readdir h
         |> Array.to_list
         |> List.map (Filename.concat h)
@@ -15,7 +17,7 @@ let read_dir dir =
     loop [] [dir]
     
 
-let read_file_tree () = Sys.getcwd () |> read_dir
+let read_file_tree (args : Types.command_args) () = Sys.getcwd () |> read_dir args
 
 (* run file --mime and checks for "charset=binary"; *)
 let is_binary fname = 
