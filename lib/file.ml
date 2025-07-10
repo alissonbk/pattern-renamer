@@ -11,11 +11,10 @@ let read_dir (args: Types.command_args) dir =
         |> Array.to_list
         |> List.map (Filename.concat h)
         |> List.append t
-        |> loop final_lst
+        |> (fun l -> if args.recursive then loop final_lst l else l)
     | h :: t -> loop (h :: final_lst) t    
   in
-    loop [] [dir]
-    
+    loop [] [dir]                
 
 let read_file_tree (args : Types.command_args) () = Sys.getcwd () |> read_dir args
 
