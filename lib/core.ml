@@ -1,23 +1,22 @@
 
+let default_ignored_folders_fname = "/etc/pr-ignored-folders.cfg"
+
 let clean_up_args (args : Types.command_args) : Types.command_args =    
   let rec clean_lst lst new_list = 
     match lst with
       | [] -> new_list
       | h :: t when (String.trim h) = "" -> clean_lst t new_list
       | h :: t -> clean_lst t (String.trim h :: new_list)
-  in      
- {
-    recursive = args.recursive;
-    ignore_files = args.ignore_files;
-    ignore_patterns = args.ignore_patterns;
-    yes = args.yes;
-    from_words = ( clean_lst args.from_words []);
+  in       
+  { 
+    args with 
+    from_words = ( clean_lst args.from_words []); 
     to_words = (clean_lst args.to_words []);    
-    debug_mode = args.debug_mode
   }
 
 let read_default_ignored_folders (args : Types.command_args) : Types.command_args =
-  let fin = open_in "/etc/pr-ignored-folders.cfg" in
+  if args.bypass_default_ignored then args else
+  let fin = open_in default_ignored_folders_fname  in
   input_line fin |> ignore;
   let default_ignored_folders = input_line fin |> String.split_on_char ',' |> List.map String.trim in  
   { args with ignore_files = args.ignore_files @ default_ignored_folders }  
@@ -289,7 +288,7 @@ let run_steps args =
   clean_up_fs args file_list;
   ()
 
-let entrypoint recursive ignore_files ignore_patterns yes from_words to_words debug_mode =
+let entrypoint recursive ignore_files ignore_patterns yes from_words to_words debug_mode list_default_ignored bypass_default_ignored =  
   let args : Types.command_args = {
     recursive = recursive;
     ignore_files = ignore_files;
@@ -297,9 +296,16 @@ let entrypoint recursive ignore_files ignore_patterns yes from_words to_words de
     yes = yes;
     from_words = from_words;
     to_words = to_words;
-    debug_mode = debug_mode
+    debug_mode = debug_mode;
+    bypass_default_ignored = bypass_default_ignored
   }
   in
+  if list_default_ignored then (
+    let args = read_default_ignored_folders args in
+    List.iter (fun f -> Log.log Info f) args.ignore_files;
+    Stdlib.exit 0
+  )    
+  else  
   if args.debug_mode then (
     Log.log_input_args args
   );

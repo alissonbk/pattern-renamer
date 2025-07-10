@@ -2,7 +2,7 @@ open Types
 
 
 (* entrypoint called from the command.ml *)
-val entrypoint : bool -> string list -> string list -> bool -> string list -> string list -> bool -> unit
+val entrypoint : bool -> string list -> string list -> bool -> string list -> string list -> bool -> bool -> bool -> unit
 
 (* Divided in a few steps 
   -> Clean up

@@ -8,6 +8,7 @@ type command_args = {
   from_words : string list;
   to_words : string list;
   debug_mode : bool;
+  bypass_default_ignored : bool;
 }
 
 
