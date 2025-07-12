@@ -259,6 +259,7 @@ let rec clean_up_fs args = function
     
 
 
+(* this function will run each step of the process *)
 let run_steps args =    
   let args = args |> clean_up_args |> read_default_ignored_folders in  
   let valid = validate_args args in
@@ -288,6 +289,7 @@ let run_steps args =
   clean_up_fs args file_list;
   ()
 
+(* entrypoint from the command arguments *)
 let entrypoint recursive ignore_files ignore_patterns yes from_words to_words debug_mode list_default_ignored bypass_default_ignored =  
   let args : Types.command_args = {
     recursive = recursive;

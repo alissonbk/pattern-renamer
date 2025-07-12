@@ -1,9 +1,6 @@
 ### Remaining
 
-- Fix ignore patterns (test more, but i think its okay now)
-- Fix usage as a simple renamer (there is only a single pattern but need to be renamed in multiple files. This should be working....)
-- The recursive option is always beeing used (need to not read subirs if -r is not provided)
-- Add default famous directories and ask if want to ignore them when existing like (node_modules, java target folder, .next, anything that have non binary files...)
+- handle cases with all upper mainly for cases like (ManualVersionID is not being identified by manual_version_id)
 - Implement Gramatical type
   - Create assets for many language dictonaries
   - Create a flag and only use if flag is passed through args
