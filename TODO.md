@@ -1,5 +1,6 @@
 ### Remaining
 
+- handle cancelling signals (should remove the created .tmp files when a interruption signal is sent to the process)
 - handle cases with all upper mainly for cases like (ManualVersionID is not being identified by manual_version_id)
 - Implement Gramatical type
   - Create assets for many language dictonaries
